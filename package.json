@@ -1,0 +1,108 @@
+{
+  "name": "domeleon",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Build web UIs with classes encapsulating your domain model and a pluggable Preact/React/Vue VDOM.",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./react": {
+      "types": "./dist/renderers/react/index.d.ts",
+      "import": "./dist/renderers/react/index.js",
+      "require": "./dist/renderers/react/index.cjs"
+    },
+    "./vue": {
+      "types": "./dist/renderers/vue/index.d.ts",
+      "import": "./dist/renderers/vue/index.js",
+      "require": "./dist/renderers/vue/index.cjs"
+    },
+    "./maskito": {
+      "types": "./dist/addons/maskito/index.d.ts",
+      "import": "./dist/addons/maskito/index.js",
+      "require": "./dist/addons/maskito/index.cjs"
+    },
+    "./unocss": {
+      "types": "./dist/addons/unocss/index.d.ts",
+      "import": "./dist/addons/unocss/index.js",
+      "require": "./dist/addons/unocss/index.cjs"
+    },
+    "./zod": {
+      "types": "./dist/addons/zod/index.d.ts",
+      "import": "./dist/addons/zod/index.js",
+      "require": "./dist/addons/zod/index.cjs"
+    },
+    "./inspector": {
+      "types": "./dist/addons/inspector/index.d.ts",
+      "import": "./dist/addons/inspector/index.js",
+      "require": "./dist/addons/inspector/index.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "sideEffects": false,
+  "peerDependenciesMeta": {
+    "@maskito/kit": { "optional": true },
+    "@maskito/core": { "optional": true },
+    "zod": { "optional": true },
+    "@unocss/core": { "optional": true },
+    "@unocss/preset-wind3": { "optional": true },
+    "react": { "optional": true },
+    "react-dom": { "optional": true },
+    "vue": { "optional": true }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "serve": "npx live-server --port=3000 --open=test-app.html",
+    "start": "concurrently \"npm run dev\" \"npm run serve\"",
+    "test": "jest",
+    "clean": "rimraf dist",
+    "prepublishOnly": "npm run clean && npm run build"
+  },
+  "keywords": [
+    "typescript"
+  ],
+  "author": "Domeleon",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jest": "^29.5.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "concurrently": "^8.0.1",
+    "jest": "^29.5.0",
+    "live-server": "^1.2.2",
+    "rimraf": "^5.0.0",
+    "ts-jest": "^29.1.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.4",
+    "@swc/core": "^1.11.24"
+  },
+  "peerDependencies": {
+    "preact": "^10.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "vue": "^3.3.0",
+    "@maskito/kit": "^3.7.2",
+    "@maskito/core": "^3.7.2",
+    "zod": "^3.23.8",
+    "@unocss/core": "^66.1.1",
+    "@unocss/preset-wind3": "66.3.1"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/user/domeleon"
+  },
+  "bugs": {
+    "url": "https://github.com/user/domeleon/issues"
+  },
+  "homepage": "https://github.com/user/domeleon"
+}

@@ -1,0 +1,62 @@
+import type { VAttributes } from "./dom.js"
+import { normalizeUtilityClass, bracketVariantRegex } from "./processUtility.js"
+
+export class ClassProcessor {
+  #elementClasses = new Set<string>()
+
+  addClass(value: VAttributes["class"]) : void {
+    const inputs =  
+      typeof value === "string" ? [value] :
+      Array.isArray(value) ? value :
+      []
+
+    const tokens = inputs.flatMap(v => {
+      if (! v) return []
+      const bracketVariants = Array.from (v.matchAll(bracketVariantRegex), m => m[0])
+      const remainder = v.replace(bracketVariantRegex, " ")
+      const plainClasses = remainder
+        .trim()
+        .split(/\s+/g)
+        .filter(Boolean)
+      return [...bracketVariants, ...plainClasses]
+    }).filter(Boolean)
+
+    for (const rawToken of tokens) {
+      const token = cssManager.addClass(rawToken, false) // cssManager.addClass normalizes the selector-space token
+      this.#elementClasses.add(token)
+    }
+  }
+
+  getClassString(): string {
+    return [...this.#elementClasses].join(" ")
+  }
+}
+
+class CssManager {
+  #classes = new Set<string>()
+  #stickyClasses = new Set<string>()
+
+  addClass(cls: string, sticky: boolean) : string {
+    const token = normalizeUtilityClass(cls)
+    if (sticky) this.#stickyClasses.add(token)
+    else this.#classes.add(token)
+    return token
+  }
+  
+  async flushClasses(handler?: CssAdapter): Promise<void> {
+    if (!handler) return
+    await handler.generate(this.#classes, this.#stickyClasses)
+    this.#classes.clear()
+    this.#stickyClasses.clear()
+  }
+}
+
+export interface CssAdapter {
+  generate (classes: Set<string>, stickyClasses: Set<string>): Promise<void>
+}
+
+export const cssManager = new CssManager()
+
+export function stickyClass(cls: string) {
+  return cssManager.addClass(cls, true)
+}
