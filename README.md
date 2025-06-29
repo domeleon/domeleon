@@ -43,15 +43,24 @@ Here's a Counter component in Domeleon within an HTML page. No build step requir
 
   class Counter extends Component {
     count = 0
+
     view() {
       return div(
-        button({ onClick: () => { this.count++; this.update() } }, '+'),
+        button({ onClick: () => this.add()}, '+'),
         this.count
       )
     }
+
+    add() {
+      this.count++
+      this.update()
+    }
   }
 
-  new App({ rootComponent: Counter, containerId: 'app' })
+new App({
+  rootComponent: new Counter(),
+  containerId: 'app'
+})
 </script>
 ```
 

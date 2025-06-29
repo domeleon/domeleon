@@ -14,6 +14,7 @@ export default defineConfig({
   dts: true,              // Generate .d.ts files
   splitting: true,        // Enable code splitting
   sourcemap: true,
+  target: 'es2018',
   clean: true,
   outDir: 'dist'
 }) 
