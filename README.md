@@ -65,16 +65,7 @@ Components update their state via their `update` method, which triggers a re-ren
 
 ## npm:
 ```bash
-# core package
 npm install domeleon
-
-# Optional add-ons (install only what you need)
-npm install domeleon/unocss 
-npm install domeleon/zod
-npm install domeleon/maskito
-npm install domeleon/inspector
-npm install domeleon/react
-npm install domeleon/vue
 ```
 
 ## ES module CDNs:
