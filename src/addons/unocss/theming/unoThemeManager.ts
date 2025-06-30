@@ -10,10 +10,15 @@ export interface UnoThemeManagerOptions<TTheme extends Theme> {
   id: string
   themes: ThemeSet<TTheme>
   initialTheme?: keyof ThemeSet<TTheme>
-  rootSelector?: string
   unoCssConfig?: UserConfig
   globalUnoCss?: (theme: ThemeProxy<TTheme>) => Record<string, string>
   globalRawCss?: (theme: ThemeProxy<TTheme>) => string
+  /**
+   * When true, all theme output is isolated to the element with `id` (CSS variables
+   * live on `#id` and generated selectors are wrapped with `#id`).
+   * When false (default), variables go to `:root` and selectors are global.
+   */
+  isolate?: boolean
 }
 
 export class UnoThemeManager<TTheme extends Theme> {
@@ -25,28 +30,34 @@ export class UnoThemeManager<TTheme extends Theme> {
   #themeName!: string
   #id!: string 
   #themes!: ThemeSet<TTheme>
-  #rootSelector!: string
-  #prefix!: string
   #host!: HTMLElement
+  #isolate!: boolean
 
   constructor(options: UnoThemeManagerOptions<TTheme>) {
     this.#id = options.id
+    this.#isolate = options.isolate ?? false
     this.#themes = options.themes
-    this.#prefix = `--${this.#id}`
     this.#themeName = this.#getInitialTheme(options)
     this.#theme = this.#buildProxyTheme() 
+    const resolvedUnoCfg: UserConfig = options.unoCssConfig || {}    
 
-    const resolvedUnoCfg: UserConfig = options.unoCssConfig || {}
-
-    this.unoCssAdapter = new UnoCssAdapter(this.#id, {
-      ...resolvedUnoCfg,
-      theme: {
-        ...(resolvedUnoCfg.theme || {}),
-        ...this.#buildUnoTheme(),
-      },
+    this.unoCssAdapter = new UnoCssAdapter({
+      id: this.#id,
+      isolateSelectors: this.#isolate,
+      unoCssConfig: {
+        ...resolvedUnoCfg,
+        theme: {
+          ...(resolvedUnoCfg.theme || {}),
+          ...this.#buildUnoTheme(),
+        },
+      }
     })
 
-    this.rootSelector = options.rootSelector || ':root'
+    this.#host = this.#createHostElement(this.rootSelector)
+    this.#host.dataset.theme = this.#themeName
+
+    // insert CSS custom property definitions for the initial theme
+    this.#renderUnoCss()
 
     if (options.globalUnoCss) {
       const rawMap = options.globalUnoCss(this.theme)
@@ -62,18 +73,8 @@ export class UnoThemeManager<TTheme extends Theme> {
 
   get theme(): ThemeProxy<TTheme> { return this.#theme }
 
-  /** current root selector (e.g. ':root' or '#app') */
-  get rootSelector() { return this.#rootSelector }
-
-  set rootSelector(value: string) {
-    if (!value || value === this.#rootSelector && this.#host) return
-
-    this.#rootSelector = value
-    this.#host = this.#createHostElement(this.#rootSelector)
-    this.#renderUnoCss()
-    this.#host.dataset.theme = this.#themeName
-    this.unoCssAdapter.scope = this.#rootSelector !== ':root' ? this.#rootSelector : undefined
-  }
+  /** Current root selector.  Either `#${id}` when scoped, or `:root` when global. */
+  get rootSelector() { return this.#isolate ? `#${this.#id}` : ':root' }
 
   set themeName(name: string) {
     this.#themeName = name
@@ -105,7 +106,17 @@ export class UnoThemeManager<TTheme extends Theme> {
     const host = rootSelector && rootSelector !== ':root'
         ? (document.querySelector(rootSelector) as HTMLElement | null)
         : document.documentElement
-      return host ?? document.documentElement
+
+    // If the selector is an ID (e.g. "#foo") and no element exists yet, create it so we
+    // don't mistakenly treat <html> as the host and overwrite its data-theme attribute.
+    if (!host && rootSelector.startsWith('#')) {
+      const el = document.createElement('div') as HTMLElement
+      el.id = rootSelector.substring(1)
+      document.body.append(el)
+      return el
+    }
+
+    return host ?? document.documentElement
   }
 
   #buildProxyTheme = (): ThemeProxy<TTheme> =>
@@ -125,7 +136,7 @@ export class UnoThemeManager<TTheme extends Theme> {
       : `var(${this.#cssVar(path)})`
 
   #cssVar = (segments: string[]) =>
-    `${this.#prefix}-${segments.map(kebab).join('-')}`
+    `--${this.#id}-${segments.map(kebab).join('-')}`
 
   #cssVars = (theme: TTheme) =>
     flatten(theme)
@@ -144,7 +155,7 @@ export class UnoThemeManager<TTheme extends Theme> {
     this.#unoStyleEl.textContent = Object.entries(this.#themes)
       .map(
         ([n, v]) =>
-          `${this.#rootSelector}[data-theme=\"${n}\"] {\n${this.#cssVars(v)}\n}`
+          `${this.rootSelector}[data-theme=\"${n}\"] {\n${this.#cssVars(v)}\n}`
       )
       .join('\n')
   }

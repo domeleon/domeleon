@@ -5,29 +5,44 @@ import { Shortcuts, type ShortcutDef } from './shortcuts.js'
 
 export type StickyMode = "always" | "explicit"
 
+export interface UnoCssAdapterOptions {
+  /** Unique identifier; also used for style-element IDs */
+  id: string
+  /** Configuration passed verbatim to UnoCSS */
+  unoCssConfig?: UserConfig
+  /** Sticky-class generation mode (default: "always"). */
+  stickyMode?: StickyMode
+  /** When true, generated selectors will be wrapped with `#${id}` to isolate them from the rest of the page. Defaults to false. */
+  isolateSelectors?: boolean
+}
+
 export class UnoCssAdapter implements CssAdapter {
+  #id: string
   #generatorPromise: Promise<UnoGenerator>
   #styleEl?: HTMLStyleElement
   #stickyClasses = new Set<string>()
-  stickyMode: StickyMode = "always"
+  #stickyMode: StickyMode
   #shortcuts: Shortcuts
+  #isolateSelectors: boolean
 
-  /**
-   * Optional scope selector used to prefix every generated rule, e.g. "#my-host".
-   */
-  public scope?: string
-
-  constructor(private id: string, config: UserConfig = {}) {
-    this.#shortcuts = new Shortcuts(this.id)
+  constructor(options: UnoCssAdapterOptions) {
+    const { id, stickyMode = "always", isolateSelectors = false, unoCssConfig = {} } = options
+    this.#id = id
+    this.#shortcuts = new Shortcuts(this.#id)
+    this.#stickyMode = stickyMode
+    this.#isolateSelectors = isolateSelectors
     const merged: UserConfig = {
-      ...config,
+      ...unoCssConfig,
       variants: [
-        ...(config.variants || []),
+        ...(unoCssConfig.variants || []),
         globalVariant,
       ],
     }
-    this.#generatorPromise = createGenerator(merged)    
+    this.#generatorPromise = createGenerator(merged)
   }
+
+  /** Sticky-class generation mode. */
+  get stickyMode() { return this.#stickyMode }
 
   async generate(classes: Set<string>, stickyClasses: Set<string>) {
     const generator = await this.#generatorPromise
@@ -35,25 +50,24 @@ export class UnoCssAdapter implements CssAdapter {
     this.#shortcuts.process(generator)
 
     stickyClasses.forEach((cls) => this.#stickyClasses.add(cls))
-    if (this.stickyMode === "always") {
+    if (this.#stickyMode === "always") {
       classes.forEach((cls) => this.#stickyClasses.add(cls))
     }
 
     const tokensToGenerate =
-      this.stickyMode === "always"
+      this.#stickyMode === "always"
         ? this.#stickyClasses
         : new Set([...this.#stickyClasses, ...classes])
 
-    const generatorOptions = this.scope ? { scope: this.scope } : undefined
+    const generatorOptions = this.#isolateSelectors ? { scope: `#${this.#id}` } : undefined
     const { css } = await generator.generate(tokensToGenerate, generatorOptions)
 
-    const id = `domeleon-uno-styles-${this.id}`
-    let el = (this.#styleEl ||
-      (document.getElementById(id) as HTMLStyleElement | null))
+    const styleId = `domeleon-uno-styles-${this.#id}`
+    let el = this.#styleEl || (document.getElementById(styleId) as HTMLStyleElement | null)
 
     if (!el) {
       el = Object.assign(document.createElement('style'), {
-        id,
+        id: styleId,
         type: 'text/css',
       })
       document.head.append(el)
@@ -67,9 +81,9 @@ export class UnoCssAdapter implements CssAdapter {
 
   clearStickyClasses() {
     this.#stickyClasses.clear()
-  } 
+  }
 
-  shortcut<T extends Record<string, string>> (spec: ShortcutDef<T>) {
+  shortcut<T extends Record<string, string>>(spec: ShortcutDef<T>) {
     return this.#shortcuts.add(spec)
   }
 }

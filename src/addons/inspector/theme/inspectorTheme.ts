@@ -26,6 +26,7 @@ export const inspectorTheme = {
 
 export const themeMgr = new UnoThemeManager({
   id: 'inspector',
+  isolate: true,
   themes: { default: inspectorTheme },
   unoCssConfig: { presets: [presetWind3()] }
 })

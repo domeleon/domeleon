@@ -19,8 +19,6 @@ export class Inspector implements IInspector {
     this.#containerId = this.#hostId
     this.#hostElement = this.#ensureHostElement()
 
-    themeMgr.rootSelector = `#${this.#hostId}`
-
     this.#inspectorPanel = new InspectorPanel(targetApp.rootComponent, this)
     this.#inspectorApp = new App({
       rootComponent: this.#inspectorPanel,

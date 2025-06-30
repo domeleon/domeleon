@@ -10,7 +10,7 @@ export { Route } from './router/route.js'
 export { RouteService } from './router/routeService.js'
 export { ComponentSerializer, type SerializerEvent } from './component/componentSerializer.js'
 export { isVElement, type OnUnmounted, type VAttributes, type VElement, type VNode } from './dom/dom.js'
-export { type HValue, type HValues, mergeAttrs } from './dom/html.js'
+export { type HValue, type HValues, mergeAttrs, h } from './dom/html.js'
 export { equalsIgnoreCase, parseFloatDeNaN, fuzzyEquals, humanizeIdentifier, isNullOrEmpty, kebab } from './util.js'
 export { getLabel, getDescription, getPropertyKey, getPropertyValue, setPropertyValue, key,
   type DataBindProps, type PropertyRef, type ILabelMap, type ILabel, type ILabeled, type InputEvent } from './form/componentBinding.js'
