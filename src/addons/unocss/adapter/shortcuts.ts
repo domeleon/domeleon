@@ -10,9 +10,9 @@ export type ShortcutDef<T extends Record<string,string>> = { prefix?: string; de
  */
 export class Shortcuts {
   /** Shortcuts awaiting registration on the UnoCSS generator */
-  #pending: Array<[string, string]> = []
+  private _pending: Array<[string, string]> = []
   /** Already-registered aliases to avoid duplicates */
-  #registered = new Set<string>()
+  private _registered = new Set<string>()
 
   constructor(private defaultPrefix = '') {}
 
@@ -30,9 +30,9 @@ export class Shortcuts {
     return Object.fromEntries(
       Object.entries(spec.def).map(([key, body]) => {
         const alias = prefix ? `${prefix}-${key}` : key
-        if (!this.#registered.has(alias)) {
-          this.#registered.add(alias)
-          this.#pending.push([alias, body])
+        if (!this._registered.has(alias)) {
+          this._registered.add(alias)
+          this._pending.push([alias, body])
         }
         return [key, alias]
       }),
@@ -44,18 +44,18 @@ export class Shortcuts {
    * Called by `UnoCssAdapter.generate()` right before generating CSS.
    */
   process(generator: UnoGenerator) {
-    if (this.#pending.length === 0) return
+    if (this._pending.length === 0) return
 
     // Uno's `config.shortcuts` is typed readonly; cast to mutable locally.
     ;(generator.config.shortcuts as any) ??= []
     const list = generator.config.shortcuts as any[]    
     list.push(
-      ...this.#pending.map(([alias, body]) => [
+      ...this._pending.map(([alias, body]) => [
         alias,
         normalizeUtilityString(body.trim())
       ])
     )
 
-    this.#pending.length = 0
+    this._pending.length = 0
   }
 }

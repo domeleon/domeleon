@@ -5,80 +5,80 @@ import { InspectorPanel } from './coreui/inspectorPanel.js'
 import type { UpdateEvent } from '../../component/componentTypes.js'
 
 export class Inspector implements IInspector {
-  #inspectorApp: App
-  #hostElement: HTMLDivElement
-  #toggleHandle: HTMLDivElement
-  #settings: InspectorSettings
-  #inspectorPanel: InspectorPanel
-  #hostId!: string
-  #containerId!: string
+  private readonly _inspectorApp: App
+  private readonly _hostElement: HTMLDivElement
+  private readonly _toggleHandle: HTMLDivElement
+  private readonly _settings: InspectorSettings
+  private readonly _inspectorPanel: InspectorPanel
+  private readonly _hostId!: string
+  private readonly _containerId!: string
 
   constructor(targetApp: App, settingsOverrides: Partial<InspectorSettings> = {}) {
-    this.#settings = { ...defaultInspectorSettings, ...settingsOverrides }
-    this.#hostId = "inspector"
-    this.#containerId = this.#hostId
-    this.#hostElement = this.#ensureHostElement()
+    this._settings = { ...defaultInspectorSettings, ...settingsOverrides }
+    this._hostId = "inspector"
+    this._containerId = this._hostId
+    this._hostElement = this._ensureHostElement()
 
-    this.#inspectorPanel = new InspectorPanel(targetApp.rootComponent, this)
-    this.#inspectorApp = new App({
-      rootComponent: this.#inspectorPanel,
-      containerId: this.#containerId,
+    this._inspectorPanel = new InspectorPanel(targetApp.rootComponent, this)
+    this._inspectorApp = new App({
+      rootComponent: this._inspectorPanel,
+      containerId: this._containerId,
       autoPersist: true,
       cssAdapter: themeMgr.unoCssAdapter,
-      plugins: [{ onUpdated: () => { this.#refreshInspectorContainerUI() } }]
+      plugins: [{ onUpdated: () => { this._refreshInspectorContainerUI() } }]
     })    
-    this.#toggleHandle = this.#createToggler()      
-    this.#refreshInspectorContainerUI()
+    this._toggleHandle = this._createToggler()      
+    this._refreshInspectorContainerUI()
   }
 
-  #refreshInspectorContainerUI() {
-    this.#refreshHostElement()
-    this.#refreshToggler()
-    setTimeout(() => { this.#hostElement.style.opacity = '1'}, 0)
+  private _refreshInspectorContainerUI() {
+    this._refreshHostElement()
+    this._refreshToggler()
+    setTimeout(() => { this._hostElement.style.opacity = '1'}, 0)
   }
 
   toggleVisible() {
     this.isVisible = !this.isVisible
   }
 
-  get settings() { return this.#settings }
+  get settings() { return this._settings }
 
   get isVisible() {
-    return localStorage.getItem(`${this.#hostId}-visible`) !== 'false'
+    return localStorage.getItem(`${this._hostId}-visible`) !== 'false'
   }
 
   set isVisible(value: boolean) {
-    localStorage.setItem(`${this.#hostId}-visible`, value.toString())
-    this.#refreshInspectorContainerUI()
+    localStorage.setItem(`${this._hostId}-visible`, value.toString())
+    this._refreshInspectorContainerUI()
     if (value) {
-      this.#inspectorPanel.update()
+      this._inspectorPanel.update()
     }
   }
 
-  #ensureHostElement(): HTMLDivElement {
-    let hostEl = document.getElementById(this.#hostId) as HTMLDivElement | null
+  private _ensureHostElement(): HTMLDivElement {
+    let hostEl = document.getElementById(this._hostId) as HTMLDivElement | null
     if (!hostEl) {
       hostEl = document.createElement('div')
-      hostEl.id = this.#hostId
+      hostEl.id = this._hostId
       document.body.appendChild(hostEl)
     }
     Object.assign(hostEl.style, styles.host)
     return hostEl
   }
 
-  #refreshHostElement() {
+  private _refreshHostElement() {
     if (this.isVisible) {            
-      const w = this.#inspectorPanel.splitter.width            
+      const w = this._inspectorPanel.splitter.width            
       document.body.style.marginRight = `${w}px`
-      Object.assign(this.#hostElement.style, { width: `${w}px`, display: 'block' })
+      Object.assign(this._hostElement.style, { width: `${w}px`, display: 'block' })
     }
     else {
-      this.#hostElement.style.display = 'none'
+      this._hostElement.style.display = 'none'
       document.body.style.marginRight = ''
     }
   }
 
-  #createToggler(): HTMLDivElement {
+  private _createToggler(): HTMLDivElement {
     const handle = document.createElement('div')
     Object.assign(handle.style, styles.toggler)    
     handle.addEventListener('click', () => this.toggleVisible())
@@ -86,13 +86,13 @@ export class Inspector implements IInspector {
     return handle
   }
 
-  #refreshToggler() {
-    this.#toggleHandle.textContent = this.isVisible ? '👍' :'🧐'
+  private _refreshToggler() {
+    this._toggleHandle.textContent = this.isVisible ? '👍' :'🧐'
   }
 
   /** Called by the inspector plug-in to log an update from the target App. */
   recordUpdate(evt: UpdateEvent) {
-    this.#inspectorPanel.inspectorEvents.record(evt)
+    this._inspectorPanel.inspectorEvents.record(evt)
   }
 }
 

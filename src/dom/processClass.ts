@@ -2,7 +2,7 @@ import type { VAttributes } from "./dom.js"
 import { normalizeUtilityClass, bracketVariantRegex } from "./processUtility.js"
 
 export class ClassProcessor {
-  #elementClasses = new Set<string>()
+  private readonly _elementClasses = new Set<string>()
 
   addClass(value: VAttributes["class"]) : void {
     const inputs =  
@@ -23,31 +23,31 @@ export class ClassProcessor {
 
     for (const rawToken of tokens) {
       const token = cssManager.addClass(rawToken, false) // cssManager.addClass normalizes the selector-space token
-      this.#elementClasses.add(token)
+      this._elementClasses.add(token)
     }
   }
 
   getClassString(): string {
-    return [...this.#elementClasses].join(" ")
+    return [...this._elementClasses].join(" ")
   }
 }
 
 class CssManager {
-  #classes = new Set<string>()
-  #stickyClasses = new Set<string>()
+  private readonly _classes = new Set<string>()
+  private readonly _stickyClasses = new Set<string>()
 
   addClass(cls: string, sticky: boolean) : string {
     const token = normalizeUtilityClass(cls)
-    if (sticky) this.#stickyClasses.add(token)
-    else this.#classes.add(token)
+    if (sticky) this._stickyClasses.add(token)
+    else this._classes.add(token)
     return token
   }
   
   async flushClasses(handler?: CssAdapter): Promise<void> {
     if (!handler) return
-    await handler.generate(this.#classes, this.#stickyClasses)
-    this.#classes.clear()
-    this.#stickyClasses.clear()
+    await handler.generate(this._classes, this._stickyClasses)
+    this._classes.clear()
+    this._stickyClasses.clear()
   }
 }
 

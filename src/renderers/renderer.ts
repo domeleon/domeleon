@@ -17,13 +17,13 @@ export type VElementTransformer<FrameworkNode> = {
 }
 
 export abstract class Renderer<FrameworkNode> {
-  #transformer: VElementTransformer<FrameworkNode>
+  private readonly _transformer: VElementTransformer<FrameworkNode>
 
   abstract get rendererName(): string
   abstract patch(vElement: VElement, element: Element): Element
 
   constructor(transformer: VElementTransformer<FrameworkNode>) {
-    this.#transformer = transformer
+    this._transformer = transformer
   }
 
   protected renderVNode(node: VNode): FrameworkNode {
@@ -31,7 +31,7 @@ export abstract class Renderer<FrameworkNode> {
       return node as unknown as FrameworkNode
     }
     
-    const transformer = this.#transformer
+    const transformer = this._transformer
     const vElement = node
     const attributes = vElement.attributes
     let frameworkAttrs: FrameworkAttrs = {}

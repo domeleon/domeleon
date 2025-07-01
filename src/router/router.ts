@@ -10,14 +10,14 @@ import type { RouterEvent } from "./routerTypes.js"
 import type { VElement } from "../dom/dom.js"
 
 export class Router {
-  readonly #component: IRouted
-  #activeSegment = ""
-  #navigationVersion = 0
-  #inFlight?: { route: Route; promise: Promise<boolean> }
+  readonly _component: IRouted
+  private _activeSegment = ""
+  private _navigationVersion = 0
+  private _inFlight?: { route: Route; promise: Promise<boolean> }
   routeService?: IRouteService  
   
   constructor(owner: Component & IRouted) {
-    this.#component = owner
+    this._component = owner
   }  
 
   navigate(relativeRoute: Route | string | string[], action: Action = "PUSH"): Promise<boolean>
@@ -26,7 +26,7 @@ export class Router {
   
     const root = this.root
     const prevActive = root.activeLeaf!.rootToHereRouters
-    const isStale = this.#bumpNavigationVersion()
+    const isStale = this._bumpNavigationVersion()
   
     const pathOnly = relRoute.pathOnly
     const relQuery = relRoute.query
@@ -34,37 +34,37 @@ export class Router {
     const absolute = this.rootToHereRoute.concat(pathOnly)
     const target = absolute.withQuery(relQuery)
 
-    const existing = this.#getInFlight(target)
+    const existing = this._getInFlight(target)
     if (existing) return existing
-    if (this.#shouldShortCircuit(target, action)) return Promise.resolve(true)
+    if (this._shouldShortCircuit(target, action)) return Promise.resolve(true)
 
     const job = (async (): Promise<boolean> => {
       const result = await matchRoute (this.root, target, action, isStale)
       if (result.cancel) return false
 
       for (const { router, segment } of result.updates) {
-        router.#activeSegment = segment
+        router._activeSegment = segment
       }
 
       this.root.routeService!.currentRoute = target      
       this.root.routeService?.syncHistory(action)
-      this.#clearActiveSegments(prevActive)
-      this.#fireRouterUpdateEvent()
-      this.#fireNavigated()
+      this._clearActiveSegments(prevActive)
+      this._fireRouterUpdateEvent()
+      this._fireNavigated()
       return true
     })()
 
-    root.#inFlight = { route: target, promise: job }
+    root._inFlight = { route: target, promise: job }
     job.finally(() => {
-      if (root.#inFlight?.promise === job) root.#inFlight = undefined
+      if (root._inFlight?.promise === job) root._inFlight = undefined
     })
 
     return job
   }
 
-  get component() { return this.#component }
+  get component() { return this._component }
 
-  #fireRouterUpdateEvent (): void {
+  private _fireRouterUpdateEvent (): void {
     const cur = this.root.routeService?.currentRoute
     if (cur) {
       this.component.update(<RouterEvent>{
@@ -73,36 +73,36 @@ export class Router {
     }
   }
 
-  #bumpNavigationVersion(): () => boolean {
-    this.root.#navigationVersion++
-    const token = this.root.#navigationVersion
-    return () => token !== this.root.#navigationVersion
+  private _bumpNavigationVersion(): () => boolean {
+    this.root._navigationVersion++
+    const token = this.root._navigationVersion
+    return () => token !== this.root._navigationVersion
   }
 
-  #getInFlight(target: Route): Promise<boolean> | undefined {
-    return this.root.#inFlight?.route.equals(target)
-      ? this.root.#inFlight.promise
+  private _getInFlight(target: Route): Promise<boolean> | undefined {
+    return this.root._inFlight?.route.equals(target)
+      ? this.root._inFlight.promise
       : undefined
   }
 
-  #shouldShortCircuit(target: Route, action: Action): boolean {
+  private _shouldShortCircuit(target: Route, action: Action): boolean {
     const cur = this.root.routeService?.currentRoute
     return action !== "POP" && cur ? target.equals(cur) : false
   }
 
-  #fireNavigated(): void {
+  private _fireNavigated(): void {
     this.root.activeLeaf!.rootToHereRouters.forEach(r => r.component.onNavigated())
   }
 
-  #clearActiveSegments(prevActive: Router[]): void {
+  private _clearActiveSegments(prevActive: Router[]): void {
     const newActive = this.root.activeLeaf!.rootToHereRouters
     prevActive
       .filter(r => !newActive.includes(r))
-      .forEach(r => r.#activeSegment = "")
+      .forEach(r => r._activeSegment = "")
   }
 
   get activeSegment(): string {
-    return this.#activeSegment
+    return this._activeSegment
   }
 
   get activeLeaf(): Router | undefined {

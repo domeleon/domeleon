@@ -9,68 +9,68 @@ export function isValidated (c: Component): c is Component & IValidated {
 }
 
 export abstract class Validator {
-  #form: Component & IValidated
-  #errors?: ValidatorError[]
-  #runToken = 0
-  #asyncInProgress = false
-  #syncErrors: ValidatorError[] = []
-  #asyncErrors: ValidatorError[] = []
+  private readonly _form: Component & IValidated
+  private _errors?: ValidatorError[]
+  private _runToken = 0
+  private _asyncInProgress = false
+  private _syncErrors: ValidatorError[] = []
+  private _asyncErrors: ValidatorError[] = []
 
   constructor(form: Component & IValidated) {
-    this.#form = form
+    this._form = form
   }
 
   protected abstract validateSync(form: Component & IValidated): ValidatorError[]
 
-  #validateSyncWrapper(): boolean {
-    this.#syncErrors = this.validateSync(this.#form)
-    this.#mergeErrors()
-    for (const c of this.#children()) c.validator.#validateSyncWrapper()
-    return this.#isValid
+  private _validateSyncWrapper(): boolean {
+    this._syncErrors = this.validateSync(this._form)
+    this._mergeErrors()
+    for (const c of this._children()) c.validator._validateSyncWrapper()
+    return this._isValid
   }
 
   async validate(): Promise<boolean> {
-    const token = ++this.#runToken
-    this.#asyncInProgress = true
-    const syncOK = this.#validateSyncWrapper()
-    this.#fireUpdate(false)    
-    await this.#validateAsync(token)
+    const token = ++this._runToken
+    this._asyncInProgress = true
+    const syncOK = this._validateSyncWrapper()
+    this._fireUpdate(false)    
+    await this._validateAsync(token)
 
-    if (token === this.#runToken) {
-      this.#asyncInProgress = false
-      this.#fireUpdate(true)
+    if (token === this._runToken) {
+      this._asyncInProgress = false
+      this._fireUpdate(true)
     }
-    return this.#isValid
+    return this._isValid
   }
 
-  #fireUpdate(async: boolean) {
-    this.#form.update(<ValidatorEvent>{ cause: 'validator', async, validationState: this.state })
+  private _fireUpdate(async: boolean) {
+    this._form.update(<ValidatorEvent>{ cause: 'validator', async, validationState: this.state })
   }
 
   revalidate(evt: UpdateEvent): Promise<boolean> {
-    return (evt.cause === 'validator' || !this.#wasValidated)    
+    return (evt.cause === 'validator' || !this._wasValidated)    
       ? Promise.resolve(false)
       : this.validate()
   }
 
-  async #validateAsync(token: number) {
+  private async _validateAsync(token: number) {
     const tasks: Promise<unknown>[] = []
 
     tasks.push(
-      this.#form.onValidate().then(errs => {
-        if (token !== this.#runToken) return
-        this.#asyncErrors = errs
-        this.#mergeErrors()
+      this._form.onValidate().then(errs => {
+        if (token !== this._runToken) return
+        this._asyncErrors = errs
+        this._mergeErrors()
       })
     )
 
-    for (const c of this.#children())
+    for (const c of this._children())
       tasks.push(c.validator.validate())
 
     await Promise.all(tasks)
   }
 
-  #mergeErrors() {
+  private _mergeErrors() {
     const map = new Map<string, ValidatorError>()
     const add = (err: ValidatorError) => {
       const existing = map.get(err.property)
@@ -82,45 +82,45 @@ export abstract class Validator {
         map.set(err.property, { ...err, messages: [...err.messages] })
       }
     }
-    this.#syncErrors.forEach(add)
-    this.#asyncErrors.forEach(add)
-    this.#errors = Array.from(map.values())
+    this._syncErrors.forEach(add)
+    this._asyncErrors.forEach(add)
+    this._errors = Array.from(map.values())
   }
 
-  #children(): IValidated[] {
-    return this.#form.ctx.children.filter(isValidated)
+  private _children(): IValidated[] {
+    return this._form.ctx.children.filter(isValidated)
   }
 
-  getError<T>(prop: PropertyRef<T>) {
-    return this.#errors?.find(e => e.property === getPropertyKey(prop))
+  private getError<T>(prop: PropertyRef<T>) {
+    return this._errors?.find(e => e.property === getPropertyKey(prop))
   }
 
-  get #isValid(): boolean {
-    return !this.#errors?.length &&
-      this.#children().every(v => v.validator.#isValid)
+  private get _isValid(): boolean {
+    return !this._errors?.length &&
+      this._children().every(v => v.validator._isValid)
   }
 
-  get #isSettled(): boolean {
-    return !this.#asyncInProgress &&
-      this.#children().every(v => v.validator.#isSettled)
+  private get _isSettled(): boolean {
+    return !this._asyncInProgress &&
+      this._children().every(v => v.validator._isSettled)
   }
 
-  get #wasValidated(): boolean {
-    return this.#errors != null &&
-      this.#children().every(v => v.validator.#wasValidated)
+  private get _wasValidated(): boolean {
+    return this._errors != null &&
+      this._children().every(v => v.validator._wasValidated)
   }
 
   get state(): ValidationState {
-    if (! this.#wasValidated) return "unvalidated"
-    if (! this.#isValid) return "invalid"
-    if (! this.#isSettled) return "validating"
+    if (! this._wasValidated) return "unvalidated"
+    if (! this._isValid) return "invalid"
+    if (! this._isSettled) return "validating"
     return "valid"
   }
 
   clearErrors() {
-    this.#syncErrors = []
-    this.#asyncErrors = []
-    this.#errors = undefined
-    this.#children().forEach(v => v.validator.clearErrors())
+    this._syncErrors = []
+    this._asyncErrors = []
+    this._errors = undefined
+    this._children().forEach(v => v.validator.clearErrors())
   }
 }

@@ -2,33 +2,33 @@ import { Component } from './component.js'
 import { dataKeys, isDataKey } from './componentSerializer.js'
 import { type IApp, type UpdateEvent, type ComponentState } from './componentTypes.js'
 
-export class ComponentContext {    
-  readonly #component: Component
-  #app?: IApp
-  #parent?: Component
-  #state: ComponentState = "detached"  
-  readonly #componentId: number
-  static #globalComponentId = 1
+export class ComponentContext {      
+  private _app?: IApp
+  private _parent?: Component
+  private _state: ComponentState = "detached"  
+  private readonly _component: Component
+  private readonly _componentId: number
+  private static _globalComponentId = 1
 
   constructor(component: Component) {
-    this.#component = component    
-    this.#componentId = ComponentContext.#globalComponentId++    
+    this._component = component    
+    this._componentId = ComponentContext._globalComponentId++    
   }
 
   /** Returns the component this context manages. */
-  get component() { return this.#component }
+  get component() { return this._component }
 
   /** Return either "detached", "updating", or "rendered". */
-  get state() { return this.#state }  
+  get state() { return this._state }  
   
   /** Returns a unique auto-incrementing identifier for the component. Used in form binding. */
-  get componentId () { return this.#componentId }
+  get componentId () { return this._componentId }
   
   /** Returns the parent component, unless this is the root component, which has no parent.. */
-  get parent() { return this.#parent }
+  get parent() { return this._parent }
 
   /** Returns the app that this component is attached to. */
-  get app() { return this.#app }
+  get app() { return this._app }
 
   /** @internal */
   attach(app: IApp) {    
@@ -36,8 +36,8 @@ export class ComponentContext {
   }
   
   #attach(app: IApp, parent?: Component, outermost = true) {    
-    this.#app = app   
-    this.#parent = parent   
+    this._app = app   
+    this._parent = parent   
         
     for (const child of this.children) {
       child.ctx.#attach(app, this.component, false)
@@ -49,7 +49,7 @@ export class ComponentContext {
   #onAttached(): void {
     this.traverse(c => {
       if (c.ctx.state === "detached") {
-        c.ctx.#state = "updating"   
+        c.ctx._state = "updating"   
         c.onAttached()
       }      
     })
@@ -58,7 +58,7 @@ export class ComponentContext {
   /** @internal */
   markRendered(): void {
     this.traverse(c => { 
-      c.ctx.#state = "rendered"
+      c.ctx._state = "rendered"
       c.onRendered()
     })
   }
@@ -71,12 +71,12 @@ export class ComponentContext {
     if (this.app) { this.#attach(this.app, this.parent) }
 
     if (this.state == "rendered")
-      this.#state = "updating"
+      this._state = "updating"
     const sourcedEvent = <UpdateEvent>{ ...event, component: this.component } 
     for (const comp of this.rootToHere.reverse()) {
       comp.onUpdated(sourcedEvent)
     }
-    this.#app?.update(sourcedEvent)
+    this._app?.update(sourcedEvent)
   }
 
   /** The root component of the component tree. */

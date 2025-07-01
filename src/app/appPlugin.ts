@@ -8,27 +8,27 @@ export interface AppPlugin<T = unknown> {
 }
 
 export class AppPlugins {
-  #pluginData: { plugin: AppPlugin; instance: unknown }[] = []
-  #rendered = false
+  private _pluginData: { plugin: AppPlugin; instance: unknown }[] = []
+  private _rendered = false
 
   constructor(private app: App, plugins: AppPlugin[] = []) {
     for (const plugin of plugins) {
       const instance = plugin.create?.(app)
-      this.#pluginData.push({ plugin, instance })
+      this._pluginData.push({ plugin, instance })
     }
   }
 
   onRendered() {
-    if (this.#rendered) return
-    this.#rendered = true
-    for (const { plugin, instance } of this.#pluginData) {
+    if (this._rendered) return
+    this._rendered = true
+    for (const { plugin, instance } of this._pluginData) {
       plugin.onRendered?.(instance)
     }
   }
 
   /** Relay an UpdateEvent from the host App to each plugin. */
   onUpdated(event: UpdateEvent) {
-    for (const { plugin, instance } of this.#pluginData) {
+    for (const { plugin, instance } of this._pluginData) {
       plugin.onUpdated?.(instance, event)
     }
   }

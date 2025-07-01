@@ -20,80 +20,80 @@ export interface AppSetupProps {
 }
 
 export class App implements IApp {
-  #rootComponent: Component
-  serializer: AppSerializer
-  #lock = false
-  #pending = false
-  #props: AppSetupProps
-  #rootElement: Element | null = null  
-  #containerId: string
-  renderer: Renderer<any>   
-  routeService: RouteService
-  #saveDebounce: () => void   
-  #plugins: AppPlugins
+  private _lock = false
+  private _pending = false  
+  readonly serializer: AppSerializer
+  readonly renderer: Renderer<any>   
+  readonly routeService: RouteService
+  private readonly _rootComponent: Component    
+  private readonly _props: AppSetupProps
+  private readonly _rootElement: Element | null = null  
+  private readonly _containerId: string
+  private readonly _saveDebounce: () => void   
+  private readonly _plugins: AppPlugins
 
   constructor (props: AppSetupProps) {
-    this.#containerId = props.containerId
-    this.#rootComponent = props.rootComponent
-    this.#props = props
+    this._containerId = props.containerId
+    this._rootComponent = props.rootComponent
+    this._props = props
     this.renderer = props.renderer ?? createDefaultRenderer()
-    this.#rootElement = document.getElementById(props.containerId)    
-    this.#saveDebounce = debounce(() => this.#save(), 200)
+    this._rootElement = document.getElementById(props.containerId)    
+    this._saveDebounce = debounce(() => this._save(), 200)
 
     this.serializer = new AppSerializer({
       containerId: props.containerId,
-      rootComponent: this.#rootComponent,
-      refresh: () => this.#render(),
+      rootComponent: this._rootComponent,
+      refresh: () => this._render(),
       autoPersist: props.autoPersist ?? false
     })    
     
     this.routeService = props.routeService ?? new RouteService()
     this.routeService.init(this) 
-    this.#rootComponent.ctx.attach(this)
-    this.#plugins = new AppPlugins(this, props.plugins ?? [])
-    this.#render()
+    this._rootComponent.ctx.attach(this)
+    this._plugins = new AppPlugins(this, props.plugins ?? [])
+    this._render()
   }
 
-  get containerId() { return this.#containerId }  
+  get containerId() { return this._containerId }  
 
-  get rootComponent(): Component { return this.#rootComponent }
+  get rootComponent(): Component { return this._rootComponent }
 
-  #render() {
-    if (this.#lock) {
-      this.#pending = true
+  private _render() {
+    if (this._lock) {
+      this._pending = true
       return
     }
-    this.#lock = true
-    this.#pending = false    
+    this._lock = true
+    this._pending = false    
         
     requestAnimationFrame(async () => {   
       try {   
-        const vNode = this.#rootComponent.view()      
-        await cssManager.flushClasses(this.#props.cssAdapter)
-        this.#rootElement = this.renderer.patch(vNode, this.#rootElement!)
+        const vNode = this._rootComponent.view()      
+        await cssManager.flushClasses(this._props.cssAdapter)
+        this.renderer.patch(vNode, this._rootElement!)
         this.rootComponent.ctx.markRendered()
-        this.#plugins.onRendered()
+        this._plugins.onRendered()
       }
       finally {
-        this.#lock = false
-        if (this.#pending) {
-          this.#pending = false
-          this.#render()
+        this._lock = false
+        if (this._pending) {
+          this._pending = false
+          this._render()
         }
       }
     })
   }
 
   update(event: UpdateEvent) {      
-    if (! this.serializer)
+    if (! this.serializer || ! this._plugins)
       return
-    this.#plugins.onUpdated(event)
-    this.#saveDebounce()
-    this.#render()
+    this._plugins.onUpdated(event)
+    this._saveDebounce()
+    this._render()
   }
 
-  #save() {    
-    if (this.#props.autoPersist) {
+  private _save() {    
+    if (this._props.autoPersist) {
       this.serializer.save()
     }    
   }

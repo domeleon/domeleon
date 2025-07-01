@@ -9,43 +9,43 @@ export interface PersisterHost {
 }
 
 export class AppSerializer {
-  #host: PersisterHost
-  #localStorage: LocalStorageSerializer  
+  private readonly _host: PersisterHost
+  private readonly _localStorage: LocalStorageSerializer  
 
   constructor(host: PersisterHost) {
-    this.#host = host    
-    this.#localStorage = this.#createStorage()    
-    if (this.#host.autoPersist) {
-      this.#localStorage.load()
+    this._host = host    
+    this._localStorage = this._createStorage()    
+    if (this._host.autoPersist) {
+      this._localStorage.load()
     }
   }
 
-  #serialize() {
-    return this.#host.rootComponent.serializer.serialize()
+  private _serialize() {
+    return this._host.rootComponent.serializer.serialize()
   }
 
-  #deserialize(state: any) {
-    this.#host.rootComponent.serializer.deserialize(state)
-    this.#host.refresh()
+  private _deserialize(state: any) {
+    this._host.rootComponent.serializer.deserialize(state)
+    this._host.refresh()
   }  
 
   load() {
-    this.#localStorage.load()    
+    this._localStorage.load()    
   }
 
   save() {
-    this.#localStorage.save()
+    this._localStorage.save()
   }
 
   clear() {
-    this.#localStorage.clear()
+    this._localStorage.clear()
   }
 
-  #createStorage() {
+  private _createStorage() {
     return new LocalStorageSerializer({
-      key: this.#host.containerId,
-      serialize: () => JSON.stringify(this.#serialize()),
-      deserialize: state => this.#deserialize(JSON.parse(state))      
+      key: this._host.containerId,
+      serialize: () => JSON.stringify(this._serialize()),
+      deserialize: state => this._deserialize(JSON.parse(state))      
     })
   }
 }

@@ -11,31 +11,31 @@ export interface PreactRendererDeps {
 }
  
 export class PreactRenderer extends Renderer<preact.VNode<any>> {
-  #dependencies: Required<PreactRendererDeps>
-  #PreactLib: typeof preact
+  private _dependencies: Required<PreactRendererDeps>
+  private _PreactLib: typeof preact
   
   constructor(dependencies: PreactRendererDeps) {
     super(transformer())
-    this.#dependencies = {
+    this._dependencies = {
       ...dependencies,
       mountCallback:
         dependencies.mountCallback ??
         ((component, targetElement) => {
-          this.#PreactLib.render(component, targetElement)
+          this._PreactLib.render(component, targetElement)
         })
     }
-    this.#PreactLib = this.#dependencies.PreactLib
+    this._PreactLib = this._dependencies.PreactLib
   }
 
   get rendererName() { return 'Preact' }
 
   patch(vElement: VElement, containerElement: Element): Element {
     let preactNode = this.renderVNode(vElement)
-    this.#dependencies.mountCallback(preactNode as preact.VNode | null, containerElement)
+    this._dependencies.mountCallback(preactNode as preact.VNode | null, containerElement)
     return containerElement
   }
 
   unmount(containerElement: Element): void {        
-    this.#PreactLib.render(null, containerElement)
+    this._PreactLib.render(null, containerElement)
   }
 }

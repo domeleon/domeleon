@@ -5,28 +5,28 @@ export interface LocalStorageSerializerHost {
 }
 
 export class LocalStorageSerializer {
-  #host: LocalStorageSerializerHost  
+  private readonly _host: LocalStorageSerializerHost  
 
   constructor(host: LocalStorageSerializerHost) {
-    this.#host = host    
+    this._host = host    
   }
 
   load() {
     if (supported()) {
-        this.#host.deserialize(window.localStorage.getItem(this.#host.key)!)      
+        this._host.deserialize(window.localStorage.getItem(this._host.key)!)      
     }
   }
 
   save() {
     if (supported()) {
-      const obj = this.#host.serialize()
-      window.localStorage.setItem(this.#host.key, obj)
+      const obj = this._host.serialize()
+      window.localStorage.setItem(this._host.key, obj)
     }
   }
 
   clear() {
     supported() &&
-    window.localStorage.removeItem(this.#host.key)
+    window.localStorage.removeItem(this._host.key)
   }
 }
 

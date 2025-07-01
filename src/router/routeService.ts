@@ -9,20 +9,20 @@ export interface RouteServiceOptions {
 }
 
 export class RouteService implements IRouteService {
-  #basePath: Route  
-  #history?: HistorySync
-  #root!: Router
+  private _basePath: Route  
+  private _history?: HistorySync
+  private _root!: Router
   currentRoute: Route = new Route("")
 
-  get basePath(): Route { return this.#basePath }
-  get root(): Router { return this.#root }
+  get basePath(): Route { return this._basePath }
+  get root(): Router { return this._root }
 
   constructor(options: RouteServiceOptions = {}) {
-    this.#basePath = new Route (options.basePath ?? "")
+    this._basePath = new Route (options.basePath ?? "")
   }
 
   syncHistory(action: Action): void {
-    this.#history?.sync(action)
+    this._history?.sync(action)
   }
 
   init(app: App): void {
@@ -30,9 +30,9 @@ export class RouteService implements IRouteService {
     if (!isRouted(root)) return
     
     root.router.routeService = this
-    this.#root = root.router
-    this.#history = new HistorySync(this)
-    this.#history.ensureListener()
+    this._root = root.router
+    this._history = new HistorySync(this)
+    this._history.ensureListener()
     const loc = window.location
     root.router.navigate(new Route(loc.pathname + loc.search), 'POP')
   }

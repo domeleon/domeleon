@@ -26,12 +26,12 @@ const browserHistory = {
 }
 
 export class HistorySync {
-  #registered = false
+  private _registered = false
   constructor(private readonly service: IRouteService) {}
 
   ensureListener(): void {
-    if (this.service.root.parent || this.#registered) return
-    this.#registered = true
+    if (this.service.root.parent || this._registered) return
+    this._registered = true
     browserHistory.listen((route: Route, act) => {
       if (act !== 'POP') return
       const rel = route.relativeTo(this.service.basePath)

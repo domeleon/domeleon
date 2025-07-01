@@ -11,12 +11,12 @@ export interface ReactRendererDeps {
 }
 
 export class ReactRenderer extends Renderer<React.ReactElement> {
-  #dependencies: Required<ReactRendererDeps>
-  #containerToReactRootMap = new Map<Element, ReactRoot>()
+  private _dependencies: Required<ReactRendererDeps>
+  private _containerToReactRootMap = new Map<Element, ReactRoot>()
 
   constructor(dependencies: ReactRendererDeps) {
     super(transformer(dependencies.ReactLib))
-    this.#dependencies = {
+    this._dependencies = {
       ...dependencies,
       mountCallback: dependencies.mountCallback ?? this.defaultMountCallback
     }
@@ -25,24 +25,24 @@ export class ReactRenderer extends Renderer<React.ReactElement> {
   get rendererName() { return 'React' }
 
   private defaultMountCallback = (component: React.ReactNode, targetElement: Element): void => {
-    let root = this.#containerToReactRootMap.get(targetElement)
+    let root = this._containerToReactRootMap.get(targetElement)
     if (!root) {
-      root = this.#dependencies.ReactDOMClientLib.createRoot(targetElement)
-      this.#containerToReactRootMap.set(targetElement, root)
+      root = this._dependencies.ReactDOMClientLib.createRoot(targetElement)
+      this._containerToReactRootMap.set(targetElement, root)
     }        
     root.render(component)
   }
 
   patch(vElement: VElement, element: Element): Element {
-    this.#dependencies.mountCallback(this.renderVNode(vElement), element)
+    this._dependencies.mountCallback(this.renderVNode(vElement), element)
     return element
   } 
 
   unmount(containerElement: Element): void {
-    const root = this.#containerToReactRootMap.get(containerElement)
+    const root = this._containerToReactRootMap.get(containerElement)
     if (root) {
       root.unmount()
-      this.#containerToReactRootMap.delete(containerElement)
+      this._containerToReactRootMap.delete(containerElement)
     }
   }
 }

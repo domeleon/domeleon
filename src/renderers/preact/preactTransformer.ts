@@ -1,8 +1,7 @@
 import { OnMountAdapter, HookAdapter, ComponentAdapter } from "./preactAdapters.js"
 import { type VElementTransformer } from "../renderer.js"
 import * as preact from 'preact'
-import { isSvgSpecAttrKebab, isAttrEvent, isDomeleonHtmlCamelAttr, nativiseAttrName } from "../domNaming.js"
-import { kebab } from "../../util.js"
+import { isAttrEvent, nativiseAttrName } from "../domNaming.js"
 
 export const transformer = (): VElementTransformer<preact.VNode<any>> => ({
   transformElement: (tag, attrs, children) => preact.h(tag, attrs, children),
