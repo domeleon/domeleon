@@ -34,8 +34,7 @@ export class HistorySync {
     this._registered = true
     browserHistory.listen((route: Route, act) => {
       if (act !== 'POP') return
-      const rel = route.relativeTo(this.service.basePath)
-      this.service.root.navigate(rel.toString(), 'POP')
+      this.service.navigateAbsolute(route, 'POP')
     })
   }
 

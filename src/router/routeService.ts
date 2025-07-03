@@ -34,6 +34,11 @@ export class RouteService implements IRouteService {
     this._history = new HistorySync(this)
     this._history.ensureListener()
     const loc = window.location
-    root.router.navigate(new Route(loc.pathname + loc.search), 'POP')
+    this.navigateAbsolute(new Route(loc.pathname + loc.search), 'POP')
+  }
+
+  navigateAbsolute(absolute: Route, action: Action): Promise<boolean> {
+    const rel = absolute.relativeTo(this._basePath)
+    return this.root.navigate(rel, action)
   }
 }

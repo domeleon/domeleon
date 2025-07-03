@@ -23,6 +23,7 @@ export interface IRouteService {
   currentRoute: Route
   root: Router  
   syncHistory(action: Action): void
+  navigateAbsolute(absolute: Route, action: Action): Promise<boolean>
 }
 
 export interface RouterEvent extends UpdateEvent {
