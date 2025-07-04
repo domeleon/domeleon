@@ -135,7 +135,7 @@ export function formField<F extends InputFn<any, any>>(
 
   const externalLabel = isCheckbox ?
     undefined :
-    label(labelAttrsWithFor, bestLabel)
+    showLabel ? label(labelAttrsWithFor, bestLabel) : undefined
 
   return div (fieldAndValidationAttrs,
     div ({ style: { position: "relative" } }, // for material design floating labels
