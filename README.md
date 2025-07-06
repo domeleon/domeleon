@@ -2,6 +2,8 @@
 
 Build web UIs with classes encapsulating your domain model and a pluggable Preact/React/Vue VDOM.
 
+**Domeleon is optimized for LLM usage; described further below.**
+
 ## Features
 
 * **Pluggable VDOM rendering engines**:
@@ -86,6 +88,8 @@ import { App, Component, div, button } from 'https://cdn.skypack.dev/domeleon@la
 import { App, Component, div, button } from 'https://esm.sh/domeleon@latest'
 ```
 
-## Documentation
+## LLM Usage
 
-For detailed guides and API reference, please see the [full documentation website](https://domeleon.github.io/domeleon/domeleon/docs/).
+Domeleon is a concise, modular framework, making it ideal for an LLM to digest and reason about. Even the entire code base with documentation easily fits inside its context window.
+
+Instructions for an LLM to create a Domeleon app are in the [domeleon documentation](https://github.com/domeleon/domeleon-docs).
