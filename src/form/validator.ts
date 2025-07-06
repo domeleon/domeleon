@@ -91,7 +91,7 @@ export abstract class Validator {
     return this._form.ctx.children.filter(isValidated)
   }
 
-  private getError<T>(prop: PropertyRef<T>) {
+  getError<T>(prop: PropertyRef<T>) {
     return this._errors?.find(e => e.property === getPropertyKey(prop))
   }
 

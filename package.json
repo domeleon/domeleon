@@ -1,47 +1,40 @@
 {
   "name": "domeleon",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "type": "module",
   "description": "Build web UIs with classes encapsulating your domain model and a pluggable Preact/React/Vue VDOM.",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "import": "./dist/index.js"
     },
     "./react": {
       "types": "./dist/renderers/react/index.d.ts",
-      "import": "./dist/renderers/react/index.js",
-      "require": "./dist/renderers/react/index.cjs"
+      "import": "./dist/renderers/react/index.js"
     },
     "./vue": {
       "types": "./dist/renderers/vue/index.d.ts",
-      "import": "./dist/renderers/vue/index.js",
-      "require": "./dist/renderers/vue/index.cjs"
+      "import": "./dist/renderers/vue/index.js"
     },
     "./maskito": {
       "types": "./dist/addons/maskito/index.d.ts",
-      "import": "./dist/addons/maskito/index.js",
-      "require": "./dist/addons/maskito/index.cjs"
+      "import": "./dist/addons/maskito/index.js"
     },
     "./unocss": {
       "types": "./dist/addons/unocss/index.d.ts",
-      "import": "./dist/addons/unocss/index.js",
-      "require": "./dist/addons/unocss/index.cjs"
+      "import": "./dist/addons/unocss/index.js"
     },
     "./zod": {
       "types": "./dist/addons/zod/index.d.ts",
-      "import": "./dist/addons/zod/index.js",
-      "require": "./dist/addons/zod/index.cjs"
+      "import": "./dist/addons/zod/index.js"
     },
     "./inspector": {
       "types": "./dist/addons/inspector/index.d.ts",
-      "import": "./dist/addons/inspector/index.js",
-      "require": "./dist/addons/inspector/index.cjs"
+      "import": "./dist/addons/inspector/index.js"
     }
   },
-  "main": "./dist/index.cjs",
+  "main": "./dist/index.js",
   "module": "./dist/index.js",
   "sideEffects": false,
   "peerDependenciesMeta": {
@@ -55,8 +48,10 @@
     "vue": { "optional": true }
   },
   "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch",
+    "build:js": "tsup",
+    "build:types": "tsc -p tsconfig.types.json && rollup -c rollup.dts.config.mjs && rimraf dist/types-temp",
+    "build": "npm run build:js && npm run build:types",
+    "dev": "concurrently \"tsup --watch\" \"npm run build:types -- --watch\"",
     "serve": "npx live-server --port=3000 --open=test-app.html",
     "start": "concurrently \"npm run dev\" \"npm run serve\"",
     "test": "jest",
@@ -77,6 +72,8 @@
     "live-server": "^1.2.2",
     "rimraf": "^5.0.0",
     "ts-jest": "^29.1.0",
+    "rollup": "^4.13.0",
+    "rollup-plugin-dts": "^6.1.0",
     "tsup": "^8.0.0",
     "typescript": "^5.0.4",
     "@swc/core": "^1.11.24"
