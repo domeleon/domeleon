@@ -14,7 +14,7 @@ export default defineConfig({
   dts: false,              // Declarations are generated in a separate ultra-fast pass
   splitting: true,
   sourcemap: true,
-  target: 'es2018',
+  target: 'es2020',
   clean: true,
   outDir: 'dist'
 }) 

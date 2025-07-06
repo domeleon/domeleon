@@ -7,7 +7,7 @@ import { InspectorComponentTree } from './inspectorComponentTree.js'
 import { TabControl } from '../helper/tabControl.js'
 
 export class InspectorPanel extends Component {  
-  #panelElement!: HTMLDivElement
+  _panelElement!: HTMLDivElement
   splitter: Splitter
   inspectorEvents: InspectorEvents
   inspectorTree: InspectorComponentTree
@@ -28,11 +28,11 @@ export class InspectorPanel extends Component {
         this.splitter.view(),
         div ({ class: panelStyles.panelContainer,
           onMounted: e => {
-            this.#panelElement = e as HTMLDivElement
-            this.#panelElement.scrollTop = this.scrollPosition
+            this._panelElement = e as HTMLDivElement
+            this._panelElement.scrollTop = this.scrollPosition
           },
           onScrollEnd: () => {
-            this.scrollPosition = this.#panelElement.scrollTop
+            this.scrollPosition = this._panelElement.scrollTop
             this.update()
           }
         },

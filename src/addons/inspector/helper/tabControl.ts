@@ -9,10 +9,10 @@ export type Tab = {
 }
 
 export class TabControl extends Component {
-  #selected = ""
-  get selected() { return this.#selected }
+  _selected = ""
+  get selected() { return this._selected }
   set selected(value: string) {
-    this.#selected = value
+    this._selected = value
     this.update()        
   }
 

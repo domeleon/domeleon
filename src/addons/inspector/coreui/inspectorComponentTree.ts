@@ -1,234 +1,232 @@
-import { Component, type VElement, div, span, isRouted } from '../../../index.js'
-import { svgArrowArray, svgArrow } from '../helper/arrow.js'
+import { Component, type VElement, div, span, isRouted, componentSkipProps } from '../../../index.js'
+import { svgArrowArray, svgArrowArrayPrivate, svgArrow } from '../helper/arrow.js'
 import { indent, sizes, themeMgr } from '../theme/inspectorTheme.js'
 import type { IInspector } from '../inspectorType.js'
 import { clamp, isPrimitive } from '../helper/util.js'
 
+/* ──────────────────────────────  VARIANTS  ────────────────────────────── */
+
+type Variant = 'public' | 'private'
+
+const variantStyles = (variant: Variant) => ({
+  prop        : variant === 'public' ? componentTreeStyles.prop                : componentTreeStyles.privateProp,
+  propLabel   : variant === 'public' ? componentTreeStyles.propLabel           : componentTreeStyles.privatePropLabel,
+  propValue   : variant === 'public' ? componentTreeStyles.propValue           : componentTreeStyles.privatePropValue,
+  arrayHeader : variant === 'public' ? componentTreeStyles.arrayHeader         : componentTreeStyles.privateArrayHeader,
+  arrayKey    : variant === 'public' ? componentTreeStyles.arrayKey            : componentTreeStyles.privateArrayKey,
+  arrayItem   : variant === 'public' ? componentTreeStyles.arrayPrimitive      : componentTreeStyles.privateArrayPrimitive,
+})
+
+/* ────────────────────────────  INSPECTOR  ─────────────────────────────── */
+
 export class InspectorComponentTree extends Component {
-  #targetRoot: Component
-  #inspector: IInspector
-  #collapseMap = new Map<string, boolean>()
+  _root: Component
+  _inspector: IInspector
+  _collapse = new Map<string, boolean>()
 
   constructor(root: Component, inspector: IInspector) {
     super()
-    this.#targetRoot = root
-    this.#inspector = inspector
+    this._root       = root
+    this._inspector  = inspector
   }
 
-  get collapseState () {    
-    return Array.from(this.#collapseMap.entries()).map(([id, collapsed]) => ({ id, collapsed }))
+  /* ----------  public API for persisting expand/collapse state ---------- */
+
+  get collapseState () {
+    return [...this._collapse].map(([id, collapsed]) => ({ id, collapsed }))
+  }
+  set collapseState (s: { id: string; collapsed: boolean }[]) {
+    this._collapse = new Map(s.map(o => [o.id, o.collapsed]))
   }
 
-  set collapseState (state: { id: string; collapsed: boolean }[]) {
-    this.#collapseMap = new Map(state.map(({ id, collapsed }) => [id, collapsed]))
-  }
+  /* --------------------------------------------------------------------- */
 
-  override onAttached(): void {    
-    this.#initCollapseStates()    
-  }
+  override onAttached() { this._initCollapse() }
 
-  #toggle(id: string) {
-    const prev = this.#collapseMap.get(id) ?? false
-    this.#collapseMap.set(id, !prev)
+  _toggle(id: string) {
+    /*  If this node has never been seen before we assume it's collapsed (=true),
+        so the very first click will expand it. */
+    const prev = this._collapse.has(id) ? this._collapse.get(id)! : true
+    this._collapse.set(id, !prev)
     this.update()
   }
 
-  #initCollapseStates() {
-    const autoDepth = this.#inspector.settings.autoOpenDepth
-    const oldMap = this.#collapseMap
-    const nextMap = new Map<string, boolean>()
+  _initCollapse() {
+    const { autoOpenDepth } = this._inspector.settings
+    /*  Start with the previous map so we keep states for
+        things the walker doesn't know about (-private nodes, etc.).   */
+    const prev = this._collapse
+    const next = new Map<string, boolean>(prev)
 
-    const walk = (c: Component, depth = 0): void => {
-      const id = ""+c.ctx.componentId
-      const defaultCollapsed = depth >= autoDepth
-      const prev = oldMap.has(id) ? oldMap.get(id)! : defaultCollapsed
-      nextMap.set(id, prev)
+    const walk = (c: Component, depth = 0) => {
+      const id = ''+c.ctx.componentId
+      next.set(id, prev.get(id) ?? depth >= autoOpenDepth)
+
       for (const key of c.ctx.dataKeys) {
-        const val = (c as any)[key]
-        if (Array.isArray(val) && val.length > 0) {
-          const arrId = `${id}-array-${key}`
-          const defaultArrCollapsed = depth + 1 >= autoDepth
-          const prevArr = oldMap.has(arrId) ? oldMap.get(arrId)! : defaultArrCollapsed
-          nextMap.set(arrId, prevArr)
-          for (const item of val) {
-            if (item instanceof Component) {
-              walk(item, depth + 2)
-            }
-          }
-        } else if (val instanceof Component) {
-          walk(val, depth + 1)
+        const v = (c as any)[key]
+        if (Array.isArray(v) && v.length) {
+          const aid = `${id}-array-${key}`
+          next.set(aid, prev.get(aid) ?? depth+1 >= autoOpenDepth)
+          v.filter(x => x instanceof Component).forEach(x => walk(x as Component, depth+2))
+        } else if (v instanceof Component) {
+          walk(v, depth+1)
         }
       }
     }
-
-    walk(this.#targetRoot, 0)
-    this.#collapseMap = nextMap
-  }
-  
-  #children(c: Component) {
-    return Object.entries(c)
-      .filter(([, v]) => v instanceof Component)
-      .map(([name, component]) => ({ name, component: component as Component }))
+    walk(this._root)
+    this._collapse = next
   }
 
-  #renderPrimitive(label: string, raw: unknown, d: number): VElement | null {
+  /* -------------------------  low-level helpers  ------------------------ */
+
+  _children = (c: Component) =>
+    Object.entries(c)
+      .filter(([,v]) => v instanceof Component)
+      .map(([name,v]) => ({ name, component: v as Component }))
+
+  _primitive(label: string, raw: unknown, d: number, variant: Variant): VElement | null {
     if (!isPrimitive(raw)) return null
-    if (this.#inspector.settings.hideEmptyValues && (raw === '' || raw == null)) return null
+    if (this._inspector.settings.hideEmptyValues && (raw === '' || raw == null)) return null
 
-    const val = clamp(raw, this.#inspector.settings.maxTextLength)
-
+    const { prop, propLabel, propValue } = variantStyles(variant)
     return div(
-      { class: componentTreeStyles.prop, style: indent(d) },
-      span({ class: componentTreeStyles.propLabel }, `${label}:`),
-      span({ class: componentTreeStyles.propValue }, val)
+      { class: prop, style: indent(d) },
+      span({ class: propLabel }, `${label}:`),
+      span({ class: propValue }, clamp(raw, this._inspector.settings.maxTextLength)),
     )
   }
 
-  #renderObject(obj: any, d: number, label: string): VElement {
-    const entries = Object.entries(obj)
+  _object(label: string, obj: Record<string,unknown>, d: number, v: Variant): VElement {
+    const header = this._primitive(label, '[Object]', d, v)!
+    const props  = Object.entries(obj)
+      .map(([k,val]) => this._primitive(k, val, d+1, v))
+      .filter(Boolean) as VElement[]
+    return div(header, ...props)
+  }
+
+  _array(ownerId: string, key: string, arr: unknown[], d: number, variant: Variant): VElement[] {
+    const sid           = `${ownerId}-${variant}-array-${key}`
+    const collapsed     = this._collapse.get(sid) ?? true
+    const { arrayHeader, arrayKey, arrayItem } = variantStyles(variant)
 
     const header = div(
-      { class: componentTreeStyles.prop, style: indent(d) },
-      span({ class: componentTreeStyles.propLabel }, `${label}:`),
-      span({ class: componentTreeStyles.propValue }, '[Object]')
+      { onClick: () => this._toggle(sid), class: arrayHeader, style: indent(d+1) },
+      (variant === 'public' ? svgArrowArray(collapsed) : svgArrowArrayPrivate(collapsed)),
+      span({ class: arrayKey }, `${key} [${arr.length}]`)
     )
+    if (collapsed) return [header]
 
-    const propNodes = entries
-      .map(([k, v]) => this.#renderPrimitive(k, v, d + 1))
-      .filter((x): x is VElement => !!x)
-
-    return div(header, ...propNodes)
-  }
-
-  #renderArray(owner: string, key: string, arr: unknown[], d: number): VElement[] {
-    const idArr = `${owner}-array-${key}`    
-    const arrCollapsed = this.#collapseMap.get(idArr) ?? true
-    
-    const arrayHeader = div({
-        onClick: () => this.#toggle(idArr),
-        class: componentTreeStyles.arrayHeader,
-        style: indent(d + 1),
-      },
-      svgArrowArray(arrCollapsed),
-      span({ class: componentTreeStyles.arrayKey }, `${key} [${arr.length}]`)
-    )
-
-    if (arrCollapsed) {
-      return [arrayHeader]
-    }
-
-    // if expanded, every item at depth = d + 2
-    const items = arr.map((item, i) => {
-      const itemDepth = d + 2
-
-      if (item instanceof Component) {
-        return this.#renderNode(item, itemDepth, `${key}[${i}]`)
-      }
-
-      if (isPrimitive(item)) {
-        return div(
-          { class: componentTreeStyles.arrayPrimitive, style: indent(itemDepth) },
-          `${i}: ${String(item)}`
-        )
-      }
-
-      if (item && typeof item === 'object') {
-        return this.#renderObject(item, itemDepth, `${key}[${i}]`)
-      }
-
-      // fallback for any other type
-      return div(
-        { class: componentTreeStyles.arrayPrimitive, style: indent(itemDepth) },
-        `${i}: [Unknown]`
-      )
+    const items = arr.map((item,i) => {
+      const depth = d+2
+      if (item instanceof Component) return this._node(item, depth, `${key}[${i}]`)
+      if (isPrimitive(item)) return div({ class: arrayItem, style: indent(depth) }, `${i}: ${item}`)
+      if (item && typeof item === 'object') return this._object(`${key}[${i}]`, item as any, depth, variant)
+      return div({ class: arrayItem, style: indent(depth) }, `${i}: [Unknown]`)
     })
-
-    return [arrayHeader, ...items]
+    return [header, ...items]
   }
 
-  /**
-   * The main recursive routine.  Header at indent(d). Then:
-   *  - all primitives at indent(d + 1) via #renderPrimitive  
-   *  - all arrays via #renderArray(ownerId, key, arr, d)  
-   *  - all child-components at indent(d + 1) via recursive #renderNode
-   */
-  #renderNode(comp: Component, d: number, label: string): VElement {
-    const id = ""+comp.ctx.componentId
-    const collapsed = this.#collapseMap.get(id) ?? false
-    const router = isRouted(comp) ? comp.router : undefined
-    const fullPath = router ? router.rootToHereRoute.pathOnly.toString() : ''
+  /* -------------------------  private group ----------------------------- */
 
-    /* ─── COMPONENT HEADER (depth = d) ─── */
-    const header = div({
-        key: id,
-        class: componentTreeStyles.header,
-        style: indent(d),
-        onMouseDown: e => {
-          e.preventDefault()
-          this.#toggle(id)
-        },
-      },
+  _privateGroup(comp: Component, ownerId: string, d: number): VElement[] {
+    const entries = Object.entries(comp).filter(([k]) => k.startsWith('_') && !componentSkipProps.includes(k))
+    if (!entries.length) return []
+
+    const id        = `${ownerId}-private`
+    const collapsed = this._collapse.get(id) ?? true
+
+    const header = div(
+      { onClick: () => this._toggle(id), class: componentTreeStyles.privateHeader, style: indent(d+1) },
+      svgArrowArrayPrivate(collapsed),
+      span({ class: componentTreeStyles.privateLabel }, `Private [${entries.length}]`)
+    )
+    if (collapsed) return [header]
+
+    const [primitives, arrays] = entries.reduce<[VElement[], VElement[]]>((p,[k,v]) => {
+      if (Array.isArray(v) && v.length)      p[1].push(...this._array(ownerId, k, v, d+1, 'private'))
+      else                                   { const n = this._primitive(k, v, d+2, 'private'); if (n) p[0].push(n) }
+      return p
+    }, [[],[]])
+
+    return [header, ...primitives, ...arrays]
+  }
+
+  /* ---------------------------  main node  ------------------------------ */
+
+  _node(comp: Component, d: number, label: string): VElement {
+    const id        = ''+comp.ctx.componentId
+    const collapsed = this._collapse.get(id) ?? false
+    const router    = isRouted(comp) ? comp.router : undefined
+    const fullPath  = router ? router.rootToHereRoute.pathOnly.toString() : ''
+
+    /* header */
+    const header = div(
+      { key: id, class: componentTreeStyles.header, style: indent(d),
+        onMouseDown: e => { e.preventDefault(); this._toggle(id) } },
       svgArrow(collapsed, !!router),
       router && span({ class: componentTreeStyles.path }, fullPath),
-      span(
-        { class: componentTreeStyles.name, style: { marginLeft: router ? '0.5em' : '0.25em' } },
-        label +":"
-      ),
-      span({ class: componentTreeStyles.class }, comp.constructor.name)
+      span({ class: componentTreeStyles.name, style:{marginLeft: router ? '0.5em':'0.25em'} }, `${label}:`),
+      span({ class: componentTreeStyles.class }, comp.constructor.name),
     )
+    if (collapsed) return header
 
-    if (collapsed) {
-      return header
-    }
-
-    /* ─── 1) PRIMITIVE PROPS at depth = d + 1 ─── */
-    const primitiveEntries: [string, unknown][] = [
+    /* primitives (public) */
+    const primEntries: [string,unknown][] = [
       ['routeSegment', (comp as any).routeSegment],
       ['router.activeSegment', router?.activeSegment],
       ['validator.state', (comp as any).validator?.validationState],
-      ...comp.ctx.dataKeys
-        .filter(k => k !== 'routeSegment')
-        .map(k => [k, (comp as any)[k]] as [string, unknown]),
+      ...comp.ctx.dataKeys.filter(k => k!=='routeSegment').map(k => [k,(comp as any)[k]] as [string, unknown]),
     ]
+    const primitives = primEntries
+      .map(([k,v]) => this._primitive(k,v,d+2,'public'))
+      .filter(Boolean) as VElement[]
 
-    const primitives = primitiveEntries
-      .map(([k, v]) => this.#renderPrimitive(k, v, d + 2))
-      .filter((x): x is VElement => !!x)
+    /* groups */
+    const privGroup = this._privateGroup(comp, id, d)
+    const arrays    = Object.entries(comp)
+      .filter(([k,v]) => Array.isArray(v) && v.length && !k.startsWith('_'))
+      .flatMap(([k,v]) => this._array(id,k,v as any[],d,'public'))
+    const children  = this._children(comp).map(ch => this._node(ch.component, d+1, ch.name))
 
-    /* ─── 2) ARRAYS ─── */
-    const arrays = Object.entries(comp)
-      .filter(([, v]) => Array.isArray(v) && (v as any[]).length)
-      .flatMap(([k, v]) => this.#renderArray(id, k, v as any[], d))
-
-    /* ─── 3) CHILD COMPONENTS at depth = d + 1 ─── */
-    const children = this.#children(comp).map(({ component: c, name }) =>
-      this.#renderNode(c, d + 1, name)
-    )
-
-    /* ─── COMBINE EVERYTHING ─── */
-    return div(header, ...primitives, ...arrays, ...children)
+    return div(header, ...primitives, ...privGroup, ...arrays, ...children)
   }
 
+  /* ------------------------------ view ---------------------------------- */
+
   view(): VElement {
-    return div ({ class: componentTreeStyles.innerPanel },
-        this.#renderNode(this.#targetRoot, 0, '[root]')
-    )
+    return div({ class: componentTreeStyles.innerPanel },
+      this._node(this._root, 0, '[root]'))
   }
 }
 
-const componentTreeStyles = themeMgr.styles("tree", theme => {
-  const { router: routerColor, textSecondary, bgSecondary, key: keyColor, value: valueColor } = theme.colors
+/* ─────────────────────────────  styles  ──────────────────────────────── */
+
+const componentTreeStyles = themeMgr.styles('tree', theme => {
+  const { router: routerColor, textSecondary, bgSecondary,
+          key: keyColor, value: valueColor } = theme.colors
   return {
-    innerPanel: `my-[${sizes.pad.md}]`,
-    header: `p-[${sizes.pad.sm}] cursor-pointer whitespace-nowrap flex items-center`,
-    path: `ml-[${sizes.pad.sm}] font-bold text-${routerColor}`,
-    name: `font-bold text-${textSecondary}`,
-    class: `ml-[${sizes.pad.md}] text-${bgSecondary}`,
-    prop: `flex py-[${sizes.pad.xs}] items-center whitespace-nowrap`,
-    propLabel: `mr-[${sizes.pad.sm}] text-[${sizes.font.small}] text-${keyColor}`,
-    propValue: `text-${valueColor} text-[${sizes.font.small}]`,
-    arrayHeader: `py-[${sizes.pad.xs}] cursor-pointer whitespace-nowrap flex items-center`,
-    arrayKey: `ml-[${sizes.pad.sm}] text-${keyColor} text-[${sizes.font.small}]`,
-    arrayPrimitive: `whitespace-nowrap text-[${sizes.font.small}] text-${valueColor}`,
+    innerPanel:   `my-[${sizes.pad.md}]`,
+    header:       `p-[${sizes.pad.sm}] cursor-pointer whitespace-nowrap flex items-center`,
+    path:         `ml-[${sizes.pad.sm}] font-bold text-${routerColor}`,
+    name:         `font-bold text-${textSecondary}`,
+    class:        `ml-[${sizes.pad.md}] text-${bgSecondary}`,
+
+    /* public */
+    prop:              `flex py-[${sizes.pad.xs}] items-center whitespace-nowrap`,
+    propLabel:         `mr-[${sizes.pad.sm}] text-[${sizes.font.small}] text-${keyColor}`,
+    propValue:         `text-${valueColor} text-[${sizes.font.small}]`,
+    arrayHeader:       `py-[${sizes.pad.xs}] cursor-pointer whitespace-nowrap flex items-center`,
+    arrayKey:          `ml-[${sizes.pad.sm}] text-${keyColor} text-[${sizes.font.small}]`,
+    arrayPrimitive:    `whitespace-nowrap text-[${sizes.font.small}] text-${valueColor}`,
+
+    /* private */
+    privateHeader:          `py-[${sizes.pad.xs}] cursor-pointer whitespace-nowrap flex items-center`,
+    privateLabel:           `ml-[${sizes.pad.sm}] text-${bgSecondary} text-[${sizes.font.small}] opacity-75`,
+    privateProp:            `flex py-[${sizes.pad.xs}] items-center whitespace-nowrap`,
+    privatePropLabel:       `mr-[${sizes.pad.sm}] text-[${sizes.font.small}] text-${bgSecondary} opacity-75`,
+    privatePropValue:       `text-${bgSecondary} text-[${sizes.font.small}] opacity-60`,
+    privateArrayHeader:     `py-[${sizes.pad.xs}] cursor-pointer whitespace-nowrap flex items-center`,
+    privateArrayKey:        `ml-[${sizes.pad.sm}] text-${bgSecondary} text-[${sizes.font.small}] opacity-75`,
+    privateArrayPrimitive:  `whitespace-nowrap text-[${sizes.font.small}] text-${bgSecondary} opacity-60`,
   }
 })

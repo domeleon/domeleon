@@ -2,17 +2,17 @@ import { Component, div, type VElement } from '../../../index.js'
 import { sizes, themeMgr } from '../theme/inspectorTheme.js'
 
 export class Splitter extends Component {
-  #width: number
+  _width: number
 
   constructor(initialWidth: number) {
     super()
-    this.#width = initialWidth
+    this._width = initialWidth
   }
 
-  get width() { return this.#width }
+  get width() { return this._width }
 
   set width(value: number) {
-    this.#width = value
+    this._width = value
     this.update()
   } 
 
@@ -27,7 +27,7 @@ export class Splitter extends Component {
     e.preventDefault()
     e.stopPropagation()
     const startX = e.clientX
-    const startWidth = this.#width
+    const startWidth = this._width
     const onMouseMove = (moveEvent: MouseEvent) => {
       const delta = startX - moveEvent.clientX
       let newWidth = startWidth + delta

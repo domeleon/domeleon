@@ -158,7 +158,7 @@ export const isWritable = (o: any, k: string): boolean => {
   return true
 }
 
-const skipProps = ['ctx', 'serializer', 'validator', 'router']
+export const componentSkipProps = ['ctx', 'serializer', 'validator', 'router']
 
 const isFunctionValue = (o: any, k: string): boolean => {
   try { return typeof o[k] === 'function' } catch { return true }
@@ -170,8 +170,9 @@ export const dataKeys = (o: any): string[] => {
   // 1) own enumerable
   for (const k of Object.keys(o)) {
     if (
-      !skipProps.includes(k) &&
+      !componentSkipProps.includes(k) &&
       isWritable(o, k) &&
+      ! k.startsWith('_') &&
       !isFunctionValue(o, k)
     ) keys.add(k)
   }
@@ -183,7 +184,7 @@ export const dataKeys = (o: any): string[] => {
     proto = Object.getPrototypeOf(proto)
   ) {
     for (const k of Object.getOwnPropertyNames(proto)) {
-      if (keys.has(k) || skipProps.includes(k)) continue
+      if (keys.has(k) || componentSkipProps.includes(k)) continue
       const d = Object.getOwnPropertyDescriptor(proto, k)!
       if (d.get && d.set && !isFunctionValue(o, k)) keys.add(k)
     }

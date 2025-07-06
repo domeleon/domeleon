@@ -6,8 +6,8 @@ import { handlerFor } from './inspectorEventCauses.js'
 import type { CssVar } from '../../unocss/index.js'
 
 export class InspectorEvents extends Component {
-  #stateChanges = new WeakMap<Component, Record<string, any>>()
-  #inspector: IInspector
+  _stateChanges = new WeakMap<Component, Record<string, any>>()
+  _inspector: IInspector
   logged: LoggedEvent[] = []
 
   get eventCount() {
@@ -16,17 +16,17 @@ export class InspectorEvents extends Component {
 
   constructor (targetRoot: Component, inspector: IInspector) {
     super()
-    this.#inspector = inspector
+    this._inspector = inspector
   }
 
-  #componentLabel (comp: Component) {
+  _componentLabel (comp: Component) {
     const parent = comp.ctx.parent
     if (! parent) return "[root]"
     return parent.ctx.childKey(comp) || "[]"
   }
   
   record(evt: UpdateEvent) {    
-    const prev = this.#stateChanges.get(evt.component)
+    const prev = this._stateChanges.get(evt.component)
     const curr: Record<string, any> = {}
 
     evt.component.ctx.dataKeys.forEach(k => {
@@ -38,10 +38,10 @@ export class InspectorEvents extends Component {
       .filter(k => prev?.[k] !== curr[k])
       .map(k => ({ key: k, newValue: String(curr[k]) }))
 
-    this.#stateChanges.set(evt.component, curr)
+    this._stateChanges.set(evt.component, curr)
 
     this.logged.push({
-      compName: this.#componentLabel(evt.component),
+      compName: this._componentLabel(evt.component),
       compType: evt.component.constructor.name,
       depth: evt.component.ctx.rootToHere.length - 1,
       changes: changes,
@@ -52,17 +52,17 @@ export class InspectorEvents extends Component {
       ...handlerFor(evt.cause)?.values?.(evt)
     })
 
-    this.logged.splice(0, Math.max (this.logged.length - this.#inspector.settings.maxEvents, 0))
+    this.logged.splice(0, Math.max (this.logged.length - this._inspector.settings.maxEvents, 0))
     this.updateIfVisible()
   }
 
   updateIfVisible() {
-    if (this.#inspector.isVisible) {
+    if (this._inspector.isVisible) {
       this.update()
     }
   }
 
-  #clear () {
+  _clear () {
     this.logged = []
     this.update()
   }
@@ -70,9 +70,9 @@ export class InspectorEvents extends Component {
   view() {
     const none = !this.logged.length
     return div({ class: styles.innerPanel },
-      button({ class: commonStyles.button, onClick: () => this.#clear() }, 'Clear'),
+      button({ class: commonStyles.button, onClick: () => this._clear() }, 'Clear'),
       none ? div({ class: styles.none }, '(none)')
-           : this.logged.slice().reverse().map(e => this.#renderRow(e))
+           : this.logged.slice().reverse().map(e => this._renderRow(e))
     )
   }
 
@@ -92,7 +92,7 @@ export class InspectorEvents extends Component {
     .map(pair => ({ key: pair.key, value: this.mapBlankValue(pair.value) }))
   }
 
-  #renderRow (ev: LoggedEvent) {
+  _renderRow (ev: LoggedEvent) {
     const handler = handlerFor(ev.cause)
     const pairs = this.getPairs(ev)
     const coercedEv = ev as unknown as UpdateEvent
@@ -103,17 +103,17 @@ export class InspectorEvents extends Component {
     )
 
     const detailsLine = div({ class: styles.details },
-      pairs.map(pair => this.#renderPair(pair.key, pair.value, handler?.color(coercedEv, pair.key)))
+      pairs.map(pair => this._renderPair(pair.key, pair.value, handler?.color(coercedEv, pair.key)))
     )
 
     return div({ class: styles.rowContainer }, headerLine, detailsLine)
   }
   
-  #renderPair (key?: string, value?: string, color?: CssVar) {    
+  _renderPair (key?: string, value?: string, color?: CssVar) {    
     return key && span(
       span({ class: styles.label }, `${key}:`),
       span({ class: [styles.value, `text-${color || themeMgr.theme.colors.value}`] },
-        clamp(value, this.#inspector.settings.maxTextLength))
+        clamp(value, this._inspector.settings.maxTextLength))
     )
   }
 }

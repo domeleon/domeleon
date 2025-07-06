@@ -22,11 +22,15 @@ export const svgArrow = (isCollapsed: boolean, hasRouter = false) =>
 export const svgArrowArray = (arrCollapsed: boolean) =>
   makeArrow(arrCollapsed, [styles.arrowArray])
 
+export const svgArrowArrayPrivate = (arrCollapsed: boolean) =>
+  makeArrow(arrCollapsed, [styles.arrowArrayPrivate])
+
 const styles = themeMgr.styles('svg', theme => {
-  const { textSecondary, router } = theme.colors
+  const { textSecondary, router, bgSecondary } = theme.colors
   return {
     arrow: `w-[${sizes.arrow.md}] h-[${sizes.arrow.md}] shrink-0`,
     arrowArray: `w-[${sizes.arrow.sm}] h-[${sizes.arrow.sm}] shrink-0 text-${textSecondary}`,
+    arrowArrayPrivate: `w-[${sizes.arrow.sm}] h-[${sizes.arrow.sm}] shrink-0 text-${bgSecondary} opacity-75`,
     colorSecondary: `text-${textSecondary}`,
     colorRouter: `text-${router}`,
   }

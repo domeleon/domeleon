@@ -32,21 +32,21 @@ export class ComponentContext {
 
   /** @internal */
   attach(app: IApp) {    
-    this.#attach(app, this.parent, true)
+    this._attach(app, this.parent, true)
   }
   
-  #attach(app: IApp, parent?: Component, outermost = true) {    
+  private _attach(app: IApp, parent?: Component, outermost = true) {    
     this._app = app   
     this._parent = parent   
         
     for (const child of this.children) {
-      child.ctx.#attach(app, this.component, false)
+      child.ctx._attach(app, this.component, false)
     }
 
-    if (outermost) { this.#onAttached() }
+    if (outermost) { this._onAttached() }
   }
 
-  #onAttached(): void {
+  private _onAttached(): void {
     this.traverse(c => {
       if (c.ctx.state === "detached") {
         c.ctx._state = "updating"   
@@ -68,7 +68,7 @@ export class ComponentContext {
    * then triggers an app render.
    */
   update(event?: Partial<UpdateEvent>) {    
-    if (this.app) { this.#attach(this.app, this.parent) }
+    if (this.app) { this._attach(this.app, this.parent) }
 
     if (this.state == "rendered")
       this._state = "updating"
