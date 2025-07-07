@@ -1,4 +1,4 @@
-import type { AppPlugin } from '../../app/appPlugin.js'
+import type { AppPlugin } from '../../index.js'
 import { Inspector } from './inspector.js'
 import type { UpdateEvent } from '../../component/componentTypes.js'
 

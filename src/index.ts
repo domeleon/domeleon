@@ -1,5 +1,6 @@
 export { App, type AppSetupProps } from './app/app.js'
 export { AppSerializer } from './app/appSerializer.js'
+export type { AppPlugin } from './app/appPlugin.js'
 export { Component } from './component/component.js'
 export { type UpdateEvent, type UpdateCause, type IApp, type ComponentState } from './component/componentTypes.js'
 export { type ComponentContext } from './component/componentContext.js'
