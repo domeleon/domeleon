@@ -1,5 +1,5 @@
 import React from 'react'
-import type { OnUnmounted } from '../../index.js'
+import type { OnUnmounted } from 'domeleon'
 import type { ReactHookConfig, ReactComponentConfig } from './index.js'
 import { RefForwardingChildWrapper } from './refForwardingWrapper.js'
 

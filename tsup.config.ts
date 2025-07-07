@@ -16,5 +16,15 @@ export default defineConfig({
   sourcemap: true,
   target: 'es2020',
   clean: true,
-  outDir: 'dist'
+  outDir: 'dist',
+  external: [
+    'domeleon',
+    'domeleon/react',
+    'domeleon/vue',
+    'domeleon/inspector',
+    'domeleon/unocss',
+    'domeleon/maskito',
+    'domeleon/zod',
+    /domeleon\/.*$/
+  ]
 }) 

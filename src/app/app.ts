@@ -6,7 +6,7 @@ import { AppSerializer } from './appSerializer.js'
 import { type CssAdapter } from '../dom/processClass.js'
 import { cssManager } from '../dom/processClass.js'
 import { RouteService } from '../router/routeService.js'
-import { debounce } from 'domeleon/util.js'
+import { debounce } from '../util.js'
 import { AppPlugins, type AppPlugin } from './appPlugin.js'
 
 export interface AppSetupProps {    

@@ -1,8 +1,7 @@
-import { App } from '../../index.js'
+import { App, type IApp, type UpdateEvent } from 'domeleon'
 import { themeMgr } from './theme/inspectorTheme.js'
 import { defaultInspectorSettings, type IInspector, type InspectorSettings } from './inspectorType.js'
 import { InspectorPanel } from './coreui/inspectorPanel.js'
-import type { UpdateEvent } from '../../component/componentTypes.js'
 
 export class Inspector implements IInspector {
   private readonly _inspectorApp: App
@@ -13,7 +12,7 @@ export class Inspector implements IInspector {
   private readonly _hostId!: string
   private readonly _containerId!: string
 
-  constructor(targetApp: App, settingsOverrides: Partial<InspectorSettings> = {}) {
+  constructor(targetApp: IApp, settingsOverrides: Partial<InspectorSettings> = {}) {
     this._settings = { ...defaultInspectorSettings, ...settingsOverrides }
     this._hostId = "inspector"
     this._containerId = this._hostId

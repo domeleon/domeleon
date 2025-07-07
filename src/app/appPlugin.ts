@@ -1,8 +1,7 @@
-import type { App } from './app.js'
-import type { UpdateEvent } from '../component/componentTypes.js'
+import type { IApp, UpdateEvent } from '../component/componentTypes.js'
 
 export interface AppPlugin<T = unknown> {
-  create?(app: App): T
+  create?(app: IApp): T
   onUpdated?(instance: T, event: UpdateEvent): void
   onRendered?(instance: T): void
 }
@@ -11,7 +10,7 @@ export class AppPlugins {
   private _pluginData: { plugin: AppPlugin; instance: unknown }[] = []
   private _rendered = false
 
-  constructor(private app: App, plugins: AppPlugin[] = []) {
+  constructor(private app: IApp, plugins: AppPlugin[] = []) {
     for (const plugin of plugins) {
       const instance = plugin.create?.(app)
       this._pluginData.push({ plugin, instance })

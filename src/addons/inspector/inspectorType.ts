@@ -1,4 +1,4 @@
-import type { UpdateCause } from "../../index.js"
+import type { UpdateCause } from 'domeleon'
 
 export interface InspectorSettings {
   hideEmptyValues: boolean

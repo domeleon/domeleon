@@ -1,5 +1,5 @@
 import { createApp, defineComponent, shallowRef, type App as VueApp, type VNode as VueVNodeType } from 'vue'
-import { Renderer, type VElement } from '../../index.js'
+import { Renderer, type VElement } from 'domeleon'
 import { transformer } from './vueTransformer.js'
 
 export class VueRenderer extends Renderer<VueVNodeType> {

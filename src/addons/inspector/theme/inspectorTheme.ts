@@ -1,5 +1,5 @@
 import presetWind3 from '@unocss/preset-wind3'
-import { UnoThemeManager } from '../../unocss/index.js'
+import { UnoThemeManager } from 'domeleon/unocss'
 
 export const inspectorTheme = {
   colors: {

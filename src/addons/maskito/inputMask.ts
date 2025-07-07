@@ -1,5 +1,5 @@
-import { type VAttributes, input, mergeAttrs, getPropertyValue, setPropertyValue, type DataBindProps } from '../../index.js'
 import { Maskito, maskitoTransform, type MaskitoOptions } from '@maskito/core'
+import { type VAttributes, input, mergeAttrs, getPropertyValue, setPropertyValue, type DataBindProps } from 'domeleon'
 
 /**
  * Defines functions to convert data between a component's model value (type T)

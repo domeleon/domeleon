@@ -1,9 +1,9 @@
-import { Component, type UpdateEvent, div, span, button } from '../../../index.js'
+import { Component, type UpdateEvent, div, span, button } from 'domeleon'
+import type { CssVar } from 'domeleon/unocss'
 import { commonStyles, sizes, themeMgr } from '../theme/inspectorTheme.js'
 import { type IInspector, type LoggedEvent } from '../inspectorType.js'
 import { isPrimitive, clamp } from '../helper/util.js'
 import { handlerFor } from './inspectorEventCauses.js'
-import type { CssVar } from '../../unocss/index.js'
 
 export class InspectorEvents extends Component {
   _stateChanges = new WeakMap<Component, Record<string, any>>()

@@ -1,4 +1,4 @@
-import { Component, type VElement, div, span, isRouted, componentSkipProps } from '../../../index.js'
+import { Component, type VElement, div, span, isRouted, componentSkipProps } from 'domeleon'
 import { svgArrowArray, svgArrowArrayPrivate, svgArrow } from '../helper/arrow.js'
 import { indent, sizes, themeMgr } from '../theme/inspectorTheme.js'
 import type { IInspector } from '../inspectorType.js'

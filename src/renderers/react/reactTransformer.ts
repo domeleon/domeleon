@@ -1,5 +1,5 @@
 import * as React from 'react'
-import type { VElementTransformer } from '../../index.js'
+import type { VElementTransformer } from 'domeleon'
 import { OnMountAdapter, HookAdapter, ComponentAdapter } from './reactAdapters.js'
 
 export const transformer = (reactLib: typeof React): VElementTransformer<React.ReactElement> => ({

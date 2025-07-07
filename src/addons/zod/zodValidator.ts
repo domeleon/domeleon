@@ -1,5 +1,5 @@
 // zodValidationAdapter.ts
-import { Validator, type IValidated, Component } from '../../index.js'
+import { Validator, type IValidated, Component } from 'domeleon'
 import type { ZodType } from 'zod'
 
 export class ZodValidator<T extends object> extends Validator {

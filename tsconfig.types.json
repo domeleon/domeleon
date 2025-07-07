@@ -4,6 +4,8 @@
     "emitDeclarationOnly": true,
     "declaration": true,
     "declarationMap": false,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "outDir": "./dist/types-temp",
     "stripInternal": false,
     "composite": false

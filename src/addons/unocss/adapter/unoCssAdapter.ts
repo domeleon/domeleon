@@ -1,5 +1,5 @@
 import { createGenerator, type UserConfig, type UnoGenerator } from '@unocss/core'
-import { type CssAdapter } from '../../../index.js'
+import { type CssAdapter } from 'domeleon'
 import { globalVariant } from './globalVariant.js'
 import { Shortcuts, type ShortcutDef } from './shortcuts.js'
 

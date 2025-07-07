@@ -1,4 +1,4 @@
-import { kebab } from "domeleon/util.js"
+import { kebab } from "../util.js"
 
 const svgElementNames = new Set([
   "animate", "animateMotion", "animateTransform", "circle", "clipPath", "defs", "ellipse",

@@ -13,4 +13,5 @@ export interface UpdateEvent {
 
 export interface IApp {
   update(event: UpdateEvent): void
+  rootComponent: Component
 }

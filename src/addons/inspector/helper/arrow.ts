@@ -1,4 +1,4 @@
-import { svg, polygon } from '../../../index.js'
+import { svg, polygon } from 'domeleon'
 import { sizes, themeMgr } from '../theme/inspectorTheme.js'
 
 function makeArrow(isCollapsed: boolean, classes: string[]) {

@@ -1,7 +1,7 @@
 import * as React from 'react'
-import type { VElement } from '../../index.js'
-import { Renderer } from '../renderer.js'
 import ReactDOM, { type Root as ReactRoot } from 'react-dom/client'
+import type { VElement } from 'domeleon'
+import { Renderer } from '../renderer.js'
 import { transformer } from './reactTransformer.js'
 
 export interface ReactRendererDeps {

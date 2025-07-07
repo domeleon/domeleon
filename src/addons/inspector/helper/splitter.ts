@@ -1,4 +1,4 @@
-import { Component, div, type VElement } from '../../../index.js'
+import { Component, div, type VElement } from 'domeleon'
 import { sizes, themeMgr } from '../theme/inspectorTheme.js'
 
 export class Splitter extends Component {

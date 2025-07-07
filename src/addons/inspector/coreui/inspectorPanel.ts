@@ -1,4 +1,4 @@
-import { Component, div } from '../../../index.js'
+import { Component, div } from 'domeleon'
 import { sizes, themeMgr } from '../theme/inspectorTheme.js'
 import type { IInspector } from '../inspectorType.js'
 import { Splitter } from '../helper/splitter.js'

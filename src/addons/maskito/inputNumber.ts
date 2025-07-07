@@ -1,7 +1,7 @@
-import { inputMask } from './inputMask.js'
 import { maskitoNumberOptionsGenerator, type MaskitoNumberParams, maskitoParseNumber } from '@maskito/kit'
 import { type MaskitoPlugin } from '@maskito/core'
-import { type DataBindProps, type VAttributes } from '../../index.js'
+import { type DataBindProps, type VAttributes } from 'domeleon'
+import { inputMask } from './inputMask.js'
 
 export type InputNumberProps = DataBindProps<number | undefined> &
 {

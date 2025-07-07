@@ -1,6 +1,6 @@
-import type { UpdateEvent, ValidatorEvent, RouterEvent, InputEvent, SerializerEvent, UpdateCause } from '../../../index.js'
+import type { UpdateEvent, ValidatorEvent, RouterEvent, InputEvent, SerializerEvent, UpdateCause } from 'domeleon'
+import type { CssVar } from 'domeleon/unocss'
 import { themeMgr } from '../theme/inspectorTheme.js'
-import type { CssVar } from '../../unocss/index.js'
 
 const colors = themeMgr.theme.colors
 

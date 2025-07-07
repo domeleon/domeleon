@@ -1,6 +1,5 @@
-import type { AppPlugin } from '../../index.js'
+import type { AppPlugin, UpdateEvent } from 'domeleon'
 import { Inspector } from './inspector.js'
-import type { UpdateEvent } from '../../component/componentTypes.js'
 
 export const inspector: AppPlugin<Inspector> = {
   create(app) {
@@ -9,4 +8,4 @@ export const inspector: AppPlugin<Inspector> = {
   onUpdated(inspector, evt: UpdateEvent) {
     inspector.recordUpdate(evt)
   }
-} 
+}

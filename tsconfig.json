@@ -4,14 +4,7 @@
     "lib": ["es2022", "dom", "dom.iterable"],
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "esModuleInterop": true,
     "skipLibCheck": true,
-    "allowJs": true,
-    "resolveJsonModule": true,
-    "moduleDetection": "force",
-    "isolatedModules": true,
-    "verbatimModuleSyntax": true,
-    "jsx": "preserve",
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "declaration": true,
@@ -19,16 +12,20 @@
     "sourceMap": true,
     "outDir": "./dist",
     "rootDir": "./src",
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
     "baseUrl": ".",
     "paths": {
       "domeleon": ["src/index"],
+      "domeleon/react": ["src/renderers/react/index"],
+      "domeleon/vue": ["src/renderers/vue/index"],
+      "domeleon/inspector": ["src/addons/inspector/index"],
+      "domeleon/maskito": ["src/addons/maskito/index"],
+      "domeleon/unocss": ["src/addons/unocss/index"],
+      "domeleon/zod": ["src/addons/zod/index"],
       "domeleon/*": ["src/*"]
     }
   },
   "include": [
     "src/**/*"
   ],
-  "exclude": ["node_modules", "dist", "**/*.spec.ts", "examples", "tests"]
+  "exclude": ["node_modules", "dist"]
 } 

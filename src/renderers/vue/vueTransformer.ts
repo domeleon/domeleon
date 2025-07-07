@@ -1,5 +1,5 @@
 import { h as vueH, type VNode as VueVNodeType } from 'vue'
-import type { FrameworkAttrs, OnUnmounted, VElementTransformer } from '../../index.js'
+import type { FrameworkAttrs, OnUnmounted, VElementTransformer } from 'domeleon'
 import { ComponentAdapter, ComposableAdapter } from './vueAdapters.js'
 import { isAttrEvent, nativiseAttrName } from '../domNaming.js'
 

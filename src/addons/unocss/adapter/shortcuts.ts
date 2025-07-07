@@ -1,5 +1,5 @@
 import type { UnoGenerator } from '@unocss/core'
-import { normalizeUtilityString } from '../../../index.js'
+import { normalizeUtilityString } from 'domeleon'
 
 export type ShortcutDef<T extends Record<string,string>> = { prefix?: string; def: T }
 

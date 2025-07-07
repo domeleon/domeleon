@@ -1,10 +1,10 @@
+import { kebab } from 'domeleon'
 import type { ThemeSet, Theme, ThemeProxy } from './themingTypes.js'
 import { CssVar } from './themingTypes.js'
 import { ColorVar } from './color.js'
 import type { UserConfig } from '@unocss/core'
 import { UnoCssAdapter } from '../adapter/unoCssAdapter.js'
 import { compileSafelist } from '../adapter/compileSafelist.js'
-import { kebab } from '../../../index.js'
 
 export interface UnoThemeManagerOptions<TTheme extends Theme> {
   id: string

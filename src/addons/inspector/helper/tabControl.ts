@@ -1,5 +1,5 @@
 // tabView.ts (revised)
-import { Component, type VElement, div, span } from "../../../index.js"
+import { Component, type VElement, div, span } from 'domeleon'
 import { sizes, themeMgr } from "../theme/inspectorTheme.js"
 
 export type Tab = {
