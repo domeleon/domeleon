@@ -1,11 +1,12 @@
 import type { UpdateEvent } from './componentTypes.js'
 import type { VElement } from '../dom/dom.js'
-import { div } from '../dom/htmlGenElements.js'
-import { ComponentContext } from './componentContext.js'
-import { ComponentSerializer as ComponentSerializer } from './componentSerializer.js'
 import type { Route } from '../router/route.js'
 import type { Action } from '../router/history.js'
 import type { ValidatorError } from '../form/validationTypes.js'
+import { div } from '../dom/htmlGenElements.js'
+import { ComponentContext } from './componentContext.js'
+import { ComponentSerializer } from './componentSerializer.js'
+import { freezeProps } from '../util.js'
 
 /**
  * Base class for all Domeleon components.
@@ -22,6 +23,10 @@ export abstract class Component {
    * The ComponentSerializer serializes and deserializes the component's state to and from JSON objects.
    */
   serializer = new ComponentSerializer(this)
+
+  constructor() {
+    freezeProps(this, ['ctx', 'serializer'])
+  }
 
   /**
    * Implement to return your component's state as a VElement, for example:

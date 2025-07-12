@@ -51,3 +51,14 @@ export function takeWhile<T>(arr: readonly T[], pred: (x: T, idx: number) => boo
   }
   return out
 }
+
+export function freezeProps(obj: any, keys: string[]) {
+  for (const key of keys) {
+    Object.defineProperty(obj, key, {
+      value: obj[key],
+      writable: false,
+      configurable: false,
+      enumerable: true
+    })
+  }
+}
