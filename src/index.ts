@@ -26,7 +26,8 @@ export {
 } from './form/inputFields.js'
 export { Validator, isValidated } from './form/validator.js'
 export type { IValidated, ValidatorError, ValidatorEvent } from './form/validationTypes.js'   
-export { formField, type InputFn } from './form/formField.js'
+export { formField, type InputFn, type InputProps, type InputType, type FormFieldInputProps,
+  type FormFieldCoreProps, type FormFieldCoreInputProps, type FormFieldProps, type FormFieldExtraProps } from './form/formField.js'
 export { type CssAdapter, stickyClass } from './dom/processClass.js'
 export { normalizeUtilityString } from './dom/processUtility.js'
 export * from './dom/htmlGenElements.js'

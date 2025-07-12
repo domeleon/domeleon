@@ -11,8 +11,70 @@ export type InputFn<
   P extends DataBindProps<T> = DataBindProps<T>
 > = (props: P) => VElement
 
-export type InputValueFrom<F> = F extends InputFn<infer T, any> ? T : never
-export type InputPropsFrom<F> = F extends InputFn<any, infer P> ? P : never
+type InputPropsFrom<F> = F extends InputFn<any, infer P> ? P : never
+export type InputType<F> = F extends InputFn<infer T, any> ? T : never
+export type InputProps<F> = Omit<InputPropsFrom<F>, keyof DataBindProps<InputType<F>>>
+
+export interface FormFieldCoreProps<F> {
+  /** The component instance to which the input field will be bound. */
+  target: Component
+  /** 
+   * A type-safe reference to the property on the `target` component that this field binds to. 
+   * Example: `() => this.username`
+   */
+  prop: PropertyRef<InputType<F>>
+
+  /** 
+   * Props specific to the chosen `inputFn`, excluding the standard `DataBindProps` 
+   * (`target`, `prop`, `id`) which are handled by `formField` itself.
+   * Example: For `inputText`, this might include `inputAttrs`. For `inputSelect`, it might include `options`.
+   */
+  inputProps?: InputProps<F>
+}
+
+export interface FormFieldCoreInputProps<F> extends FormFieldCoreProps<F> {
+  /** 
+   * The input* function responsible for rendering the input control (e.g., `inputText`, `inputSelect`).
+   */
+  inputFn: F
+}
+
+export interface FormFieldExtraProps {
+  /** 
+   * The text or HTML content for the field's label. 
+   * If not provided, a friendly name is generated from the `prop` name.
+   */
+  label?: HValues
+  /** Optional persistent supporting text displayed below the input. */
+  description?: HValues
+  /** Whether to show the label. Defaults to `true`. */
+  showLabel?: boolean
+  /** 
+   * Whether to display validation messages. Defaults to `true`.
+   * Works in conjunction with Domeleon's integrated validation system.
+   */
+  showValidation?: boolean
+  /** HTML attributes for the main div that wraps the entire form field structure. */
+  fieldAttrs?: VAttributes
+  /** HTML attributes for the label element. */
+  labelAttrs?: VAttributes
+  /** HTML attributes for the validation message container, e.g. to make validation errors red. */
+  validationAttrs?: VAttributes
+  /** HTML attributes for the supporting text container. */
+  descriptionAttrs?: VAttributes
+  /** HTML attributes for the main control wrapper div that contains the input element. */
+  controlAttrs?: VAttributes
+  /** Optional VNodes inserted before the input element within the control wrapper. */
+  inputPrefix?: VElement[]
+  /** Optional VNodes inserted after the input element within the control wrapper. */
+  inputSuffix?: VElement[]
+}
+
+/** Same as `FormFieldIputProps`, minus a specific `inputFn`. */
+export interface FormFieldProps<F> extends FormFieldCoreProps<F>, FormFieldExtraProps { }
+
+/** Props to pass to `formField`. */
+export interface FormFieldInputProps<F> extends FormFieldCoreInputProps<F>, FormFieldExtraProps {}
 
 /**
  * Creates a complete form field, typically consisting of a label, an input control, 
@@ -40,53 +102,7 @@ export type InputPropsFrom<F> = F extends InputFn<any, infer P> ? P : never
  */
 export function formField<F extends InputFn<any, any>>(
   /** Configuration options for the form field. */
-  props: {
-    /** The component instance to which the input field will be bound. */
-    target: Component
-    /** 
-     * A type-safe reference to the property on the `target` component that this field binds to. 
-     * Example: `() => this.username`
-     */
-    prop: PropertyRef<InputValueFrom<F>>
-    /** 
-     * The input* function responsible for rendering the input control (e.g., `inputText`, `inputSelect`).
-     */
-    inputFn: F
-    /** 
-     * Props specific to the chosen `inputFn`, excluding the standard `DataBindProps` 
-     * (`target`, `prop`, `id`) which are handled by `formField` itself.
-     * Example: For `inputText`, this might include `inputAttrs`. For `inputSelect`, it might include `options`.
-     */
-    inputProps?: Omit<InputPropsFrom<F>, keyof DataBindProps<InputValueFrom<F>>>
-    /** 
-     * The text or HTML content for the field's label. 
-     * If not provided, a friendly name is generated from the `prop` name.
-     */
-    label?: HValues
-    /** Optional persistent supporting text displayed below the input. */
-    description?: HValues
-    /** Whether to show the label. Defaults to `true`. */
-    showLabel?: boolean
-    /** 
-     * Whether to display validation messages. Defaults to `true`.
-     * Works in conjunction with Domeleon's integrated validation system.
-     */
-    showValidation?: boolean
-    /** HTML attributes for the main div that wraps the entire form field structure. */
-    fieldAttrs?: VAttributes
-    /** HTML attributes for the label element. */
-    labelAttrs?: VAttributes
-    /** HTML attributes for the validation message container, e.g. to make validation errors red. */
-    validationAttrs?: VAttributes
-    /** HTML attributes for the supporting text container. */
-    descriptionAttrs?: VAttributes
-    /** HTML attributes for the main control wrapper div that contains the input element. */
-    controlAttrs?: VAttributes
-    /** Optional VNodes inserted before the input element within the control wrapper. */
-    inputPrefix?: VElement[]
-    /** Optional VNodes inserted after the input element within the control wrapper. */
-    inputSuffix?: VElement[]
-  }
+  props: FormFieldInputProps<F>
 )
 {
   const { target, prop, inputFn, inputProps, label: labelH, description, showLabel = true,    
