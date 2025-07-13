@@ -43,22 +43,46 @@ export type ThemeSet<T extends Theme> = Record<string, T>
  */
 export class CssVar {
   constructor(
+    /** The unocss name, e.g.: `textPrimary` */
     public readonly name: string,
+    /** Returns the raw value defined in a specific theme, e.g.: `rgb(0, 187, 0)` */
     public readonly rawValue: string,
+
+    /** REturns the css variables name, e.g.: `--app-colors-text-primary` */
     public readonly cssVarName: string
   ) {
   }
 
+  /** Returns the name, e.g. `textPrimary` */
   toString(): string {
     return this.name;
   }
 
+  /*** Returns the var, wrapped in rgb when a color, e.g.:  `rgb(var(--app-colors-text-primary))` */
   get css(): string {
     return `var(${this.cssVarName})`
   }
 
+  /** Returns a formatted value,  raw value, e.g.: `0 187 0` */
   format () {
     return this.rawValue
+  }
+
+  /**
+   * Applies a CssVar with an alpha value from 0 to 1 to a color.
+   * 
+   * Useful when themes diverge in transparency values.
+   * ```
+   * `bg-${backgroundPrimary.alpha(panelAlpha)}`
+   * ```
+   * To hard code a transparency value, simply use standard unocss syntax:
+   * ```
+   * `bg-${backgroundPrimary}/50`
+   * ```  
+   */
+  alpha(alpha: CssVar) {
+    console.warn('alpha can only be called on a color.')
+    return this.name
   }
 }
 

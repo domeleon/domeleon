@@ -10,6 +10,15 @@ export class ColorVar extends CssVar
     return `rgb(${super.css})`
   }
 
+  override alpha(alpha: CssVar) {
+    const a = Number(alpha.rawValue)
+    if (isNaN(a) || a < 0 || a > 1) {
+      console.warn ('alpha.rawValue must be between 0 and 1')
+      return this.name
+    }
+    return `[rgb(${super.css}/${alpha.css})]`
+  }
+
   override format () {
     const value = this.rawValue as string
     const d = Object.assign(document.createElement('div'), { style: `color:${value}` })
