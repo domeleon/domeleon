@@ -29,7 +29,9 @@ export class ComponentSerializer<T extends Component> {
     const out: Record<string, any> = {}
     const types = getTypes(this.component)
 
-    for (const k of dataKeys(this.component)) {
+    for (const k of dataKeys(this.component)) {      
+      if (types[k] === null) continue
+
       const v = (this.component as any)[k]
 
       if (v instanceof Component) {
@@ -73,10 +75,15 @@ export class ComponentSerializer<T extends Component> {
     if (!data) return
 
     const types = getTypes(this.component)
-    const serialKeys = new Set(dataKeys(this.component))
+    // Accept keys that are either dataKeys or explicitly declared in static types
+    const serialKeys = new Set<string>([
+      ...dataKeys(this.component),
+      ...Object.keys(types)
+    ])
     const target: any = this.component
 
     for (const [k, rv] of Object.entries(data)) {
+      if (types[k] === null) continue
       if (!serialKeys.has(k)) continue
 
       const typeInfo = types[k]
@@ -206,13 +213,7 @@ const constructFromJSON = (ctor: any, data: any): any => {
   const custom = getCustomSerializer(ctor)
   if (custom?.fromJSON) return custom.fromJSON(data)
 
-  // 2. Custom static deserializer provided by the class itself.
-  if (typeof ctor.fromJSON === 'function') {
-    const inst = ctor.fromJSON(data)
-    return inst
-  }
- 
-  // 3. Generic construction + nested component hydration
+  // 2. Generic construction + nested component hydration
   const inst = new ctor(data)
   if (inst instanceof Component) inst.serializer.deserialize(data)
   return inst

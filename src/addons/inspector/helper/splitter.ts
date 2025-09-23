@@ -23,7 +23,7 @@ export class Splitter extends Component {
     })
   }
 
-  handleMouseDown(e: MouseEvent) {
+  private handleMouseDown(e: MouseEvent) {
     e.preventDefault()
     e.stopPropagation()
     const startX = e.clientX

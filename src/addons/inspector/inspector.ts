@@ -16,7 +16,7 @@ export class Inspector implements IInspector {
     this._settings = { ...defaultInspectorSettings, ...settingsOverrides }
     this._hostId = "inspector"
     this._containerId = this._hostId
-    this._hostElement = this._ensureHostElement()
+    this._hostElement = this.ensureHostElement()
 
     this._inspectorPanel = new InspectorPanel(targetApp.rootComponent, this)
     this._inspectorApp = new App({
@@ -24,15 +24,15 @@ export class Inspector implements IInspector {
       containerId: this._containerId,
       autoPersist: true,
       cssAdapter: themeMgr.unoCssAdapter,
-      plugins: [{ onUpdated: () => { this._refreshInspectorContainerUI() } }]
+      plugins: [{ onUpdated: () => { this.refreshInspectorContainerUI() } }]
     })    
-    this._toggleHandle = this._createToggler()      
-    this._refreshInspectorContainerUI()
+    this._toggleHandle = this.createToggler()      
+    this.refreshInspectorContainerUI()
   }
 
-  private _refreshInspectorContainerUI() {
-    this._refreshHostElement()
-    this._refreshToggler()
+  private refreshInspectorContainerUI() {
+    this.refreshHostElement()
+    this.refreshToggler()
     setTimeout(() => { this._hostElement.style.opacity = '1'}, 0)
   }
 
@@ -48,13 +48,13 @@ export class Inspector implements IInspector {
 
   set isVisible(value: boolean) {
     localStorage.setItem(`${this._hostId}-visible`, value.toString())
-    this._refreshInspectorContainerUI()
+    this.refreshInspectorContainerUI()
     if (value) {
       this._inspectorPanel.update()
     }
   }
 
-  private _ensureHostElement(): HTMLDivElement {
+  private ensureHostElement(): HTMLDivElement {
     let hostEl = document.getElementById(this._hostId) as HTMLDivElement | null
     if (!hostEl) {
       hostEl = document.createElement('div')
@@ -65,7 +65,7 @@ export class Inspector implements IInspector {
     return hostEl
   }
 
-  private _refreshHostElement() {
+  private refreshHostElement() {
     if (this.isVisible) {            
       const w = this._inspectorPanel.splitter.width            
       document.body.style.marginRight = `${w}px`
@@ -77,7 +77,7 @@ export class Inspector implements IInspector {
     }
   }
 
-  private _createToggler(): HTMLDivElement {
+  private createToggler(): HTMLDivElement {
     const handle = document.createElement('div')
     Object.assign(handle.style, styles.toggler)    
     handle.addEventListener('click', () => this.toggleVisible())
@@ -85,7 +85,7 @@ export class Inspector implements IInspector {
     return handle
   }
 
-  private _refreshToggler() {
+  private refreshToggler() {
     this._toggleHandle.textContent = this.isVisible ? '👍' :'🧐'
   }
 

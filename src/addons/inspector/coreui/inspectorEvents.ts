@@ -19,7 +19,7 @@ export class InspectorEvents extends Component {
     this._inspector = inspector
   }
 
-  _componentLabel (comp: Component) {
+  private componentLabel (comp: Component) {
     const parent = comp.ctx.parent
     if (! parent) return "[root]"
     return parent.ctx.childKey(comp) || "[]"
@@ -41,7 +41,7 @@ export class InspectorEvents extends Component {
     this._stateChanges.set(evt.component, curr)
 
     this.logged.push({
-      compName: this._componentLabel(evt.component),
+      compName: this.componentLabel(evt.component),
       compType: evt.component.constructor.name,
       depth: evt.component.ctx.rootToHere.length - 1,
       changes: changes,
@@ -62,7 +62,7 @@ export class InspectorEvents extends Component {
     }
   }
 
-  _clear () {
+  private clear () {
     this.logged = []
     this.update()
   }
@@ -70,9 +70,9 @@ export class InspectorEvents extends Component {
   view() {
     const none = !this.logged.length
     return div({ class: styles.innerPanel },
-      button({ class: commonStyles.button, onClick: () => this._clear() }, 'Clear'),
+      button({ class: commonStyles.button, onClick: () => this.clear() }, 'Clear'),
       none ? div({ class: styles.none }, '(none)')
-           : this.logged.slice().reverse().map(e => this._renderRow(e))
+           : this.logged.slice().reverse().map(e => this.renderRow(e))
     )
   }
 
@@ -92,7 +92,7 @@ export class InspectorEvents extends Component {
     .map(pair => ({ key: pair.key, value: this.mapBlankValue(pair.value) }))
   }
 
-  _renderRow (ev: LoggedEvent) {
+  private renderRow (ev: LoggedEvent) {
     const handler = handlerFor(ev.cause)
     const pairs = this.getPairs(ev)
     const coercedEv = ev as unknown as UpdateEvent
@@ -103,13 +103,13 @@ export class InspectorEvents extends Component {
     )
 
     const detailsLine = div({ class: styles.details },
-      pairs.map(pair => this._renderPair(pair.key, pair.value, handler?.color(coercedEv, pair.key)))
+      pairs.map(pair => this.renderPair(pair.key, pair.value, handler?.color(coercedEv, pair.key)))
     )
 
     return div({ class: styles.rowContainer }, headerLine, detailsLine)
   }
   
-  _renderPair (key?: string, value?: string, color?: CssVar) {    
+  private renderPair (key?: string, value?: string, color?: CssVar) {    
     return key && span(
       span({ class: styles.label }, `${key}:`),
       span({ class: [styles.value, `text-${color || themeMgr.theme.colors.value}`] },

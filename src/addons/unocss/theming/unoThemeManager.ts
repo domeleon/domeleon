@@ -37,8 +37,8 @@ export class UnoThemeManager<TTheme extends Theme> {
     this._id = options.id
     this._isolate = options.isolate ?? false
     this._themes = options.themes
-    this._themeName = this._getInitialTheme(options)
-    this._theme = this._buildProxyTheme() 
+    this._themeName = this.getInitialTheme(options)
+    this._theme = this.buildProxyTheme() 
     const resolvedUnoCfg: UserConfig = options.unoCssConfig || {}    
 
     this.unoCssAdapter = new UnoCssAdapter({
@@ -48,16 +48,16 @@ export class UnoThemeManager<TTheme extends Theme> {
         ...resolvedUnoCfg,
         theme: {
           ...(resolvedUnoCfg.theme || {}),
-          ...this._buildUnoTheme(),
+          ...this.buildUnoTheme(),
         },
       }
     })
 
-    this._host = this._createHostElement(this.rootSelector)
+    this._host = this.createHostElement(this.rootSelector)
     this._host.dataset.theme = this._themeName
 
     // insert CSS custom property definitions for the initial theme
-    this._renderUnoCss()
+    this.renderUnoCss()
 
     if (options.globalUnoCss) {
       const rawMap = options.globalUnoCss(this.theme)
@@ -67,7 +67,7 @@ export class UnoThemeManager<TTheme extends Theme> {
 
     if (options.globalRawCss) {
       this._globalRawCss = options.globalRawCss
-      this._renderRawCss()
+      this.renderRawCss()
     }
   }
 
@@ -78,21 +78,21 @@ export class UnoThemeManager<TTheme extends Theme> {
 
   set themeName(name: string) {
     this._themeName = name
-    this._theme = this._buildProxyTheme() // rebuild as some people still want to access theme's raw values
-    this._renderUnoCss()
+    this._theme = this.buildProxyTheme() // rebuild as some people still want to access theme's raw values
+    this.renderUnoCss()
     const el = this._host
     el.dataset.theme = name
     el.classList.remove('theme-transitions-active')
     requestAnimationFrame(() => el.classList.add('theme-transitions-active'))  
 
-    this._renderRawCss()
+    this.renderRawCss()
   }
 
   get themeName() {
     return this._themeName
   }
 
-  private _getInitialTheme (options: UnoThemeManagerOptions<TTheme>) {
+  private getInitialTheme (options: UnoThemeManagerOptions<TTheme>) {
     const firstTheme = Object.keys(options.themes)[0]
     const chosenTheme = options.initialTheme    
     if (chosenTheme) {
@@ -102,7 +102,7 @@ export class UnoThemeManager<TTheme extends Theme> {
     return firstTheme
   }
 
-  private _createHostElement (rootSelector: string) {        
+  private createHostElement (rootSelector: string) {        
     const host = rootSelector && rootSelector !== ':root'
         ? (document.querySelector(rootSelector) as HTMLElement | null)
         : document.documentElement
@@ -119,29 +119,29 @@ export class UnoThemeManager<TTheme extends Theme> {
     return host ?? document.documentElement
   }
 
-  private _buildProxyTheme = (): ThemeProxy<TTheme> =>
-    walk(this._themes[this._themeName], [], this._proxyLeaf) as ThemeProxy<TTheme>
+  private buildProxyTheme = (): ThemeProxy<TTheme> =>
+    walk(this._themes[this._themeName], [], this.proxyLeaf) as ThemeProxy<TTheme>
 
-  private _buildUnoTheme = () =>
-    walk(this._themes[this._themeName], [], this._unoLeaf)
+  private buildUnoTheme = () =>
+    walk(this._themes[this._themeName], [], this.unoLeaf)
 
-  private _proxyLeaf = (path: string[], val: any) =>
+  private proxyLeaf = (path: string[], val: any) =>
     path[0] === 'colors'
-      ? new ColorVar(path.slice(1).join('-'), String(val), this._cssVar(path))
-      : new CssVar(path.slice(1).join('-'), String(val), this._cssVar(path))
+      ? new ColorVar(path.slice(1).join('-'), String(val), this.cssVar(path))
+      : new CssVar(path.slice(1).join('-'), String(val), this.cssVar(path))
 
-  private _unoLeaf = (path: string[], val: any) =>
+  private unoLeaf = (path: string[], val: any) =>
     path[0] === 'colors'
-      ? new ColorVar(path.at(-1)!, String(val), this._cssVar(path)).css
-      : `var(${this._cssVar(path)})`
+      ? new ColorVar(path.at(-1)!, String(val), this.cssVar(path)).css
+      : `var(${this.cssVar(path)})`
 
-  private _cssVar = (segments: string[]) =>
+  private cssVar = (segments: string[]) =>
     `--${this._id}-${segments.map(kebab).join('-')}`
 
-  private _cssVars = (theme: TTheme) =>
+  private cssVars = (theme: TTheme) =>
     flatten(theme)
       .map(([path, val]) => {
-        const name = this._cssVar(path)
+        const name = this.cssVar(path)
         const raw =
           path[0] === 'colors'
             ? new ColorVar(path.at(-1)!, String(val), name).format()
@@ -150,24 +150,24 @@ export class UnoThemeManager<TTheme extends Theme> {
       })
       .join('\n')
 
-  private _renderUnoCss() {
-    this._unoStyleEl = this._ensureSheet(`domeleon-uno-theme-${this._id}`)
+  private renderUnoCss() {
+    this._unoStyleEl = this.ensureSheet(`domeleon-uno-theme-${this._id}`)
     this._unoStyleEl.textContent = Object.entries(this._themes)
       .map(
         ([n, v]) =>
-          `${this.rootSelector}[data-theme=\"${n}\"] {\n${this._cssVars(v)}\n}`
+          `${this.rootSelector}[data-theme=\"${n}\"] {\n${this.cssVars(v)}\n}`
       )
       .join('\n')
   }
 
-  private _renderRawCss() {
-    this._rawCssStyleEl = this._ensureSheet(`domeleon-css-theme-${this._id}`)    
+  private renderRawCss() {
+    this._rawCssStyleEl = this.ensureSheet(`domeleon-css-theme-${this._id}`)    
     if (this._globalRawCss) {
       this._rawCssStyleEl.textContent = this._globalRawCss(this._theme)
     }
   }
 
-  private _ensureSheet(id: string): HTMLStyleElement {
+  private ensureSheet(id: string): HTMLStyleElement {
     const el = (document.getElementById(id) as HTMLStyleElement) ??
       Object.assign(document.createElement('style'), { id, type: 'text/css' })
     if (!document.head.contains(el)) document.head.append(el)

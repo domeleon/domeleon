@@ -96,16 +96,18 @@ export abstract class Component {
 
   /**
    * Returns the `static types` property if you defined it, that provides type information
-   * to `serializer` during deserialization.
+   * to `serializer` during deserialization, (or `null` to omit properties during serialization/deserialization).
    * E.g.
    * ```
    * class Component {
    *   items: Item[]
    *   created: Date
+   *   picker = new Picker()
    * 
    *   static types = {
    *     items: [Item]
-   *     created: Date
+   *     created: Date,
+   *     picker: null // an alternative to prefixing property with `_` or `#`; useful for sub-components that you don't want to serialize
    *   }
    * }
    * ```

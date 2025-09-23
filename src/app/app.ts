@@ -38,12 +38,12 @@ export class App implements IApp {
     this._props = props
     this.renderer = props.renderer ?? createDefaultRenderer()
     this._rootElement = document.getElementById(props.containerId)    
-    this._saveDebounce = debounce(() => this._save(), 200)
+    this._saveDebounce = debounce(() => this.save(), 200)
 
     this.serializer = new AppSerializer({
       containerId: props.containerId,
       rootComponent: this._rootComponent,
-      refresh: () => this._render(),
+      refresh: () => this.render(),
       autoPersist: props.autoPersist ?? false
     })    
     
@@ -51,14 +51,14 @@ export class App implements IApp {
     this.routeService.init(this) 
     this._rootComponent.ctx.attach(this)
     this._plugins = new AppPlugins(this, props.plugins ?? [])
-    this._render()
+    this.render()
   }
 
   get containerId() { return this._containerId }  
 
   get rootComponent(): Component { return this._rootComponent }
 
-  private _render() {
+  private render() {
     if (this._lock) {
       this._pending = true
       return
@@ -78,7 +78,7 @@ export class App implements IApp {
         this._lock = false
         if (this._pending) {
           this._pending = false
-          this._render()
+          this.render()
         }
       }
     })
@@ -89,10 +89,10 @@ export class App implements IApp {
       return
     this._plugins.onUpdated(event)
     this._saveDebounce()
-    this._render()
+    this.render()
   }
 
-  private _save() {    
+  private save() {    
     if (this._props.autoPersist) {
       this.serializer.save()
     }    

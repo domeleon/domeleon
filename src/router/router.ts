@@ -10,7 +10,7 @@ import type { RouterEvent } from "./routerTypes.js"
 import type { VElement } from "../dom/dom.js"
 
 export class Router {
-  readonly _component: IRouted
+  private readonly _component: IRouted
   private _activeSegment = ""
   private _navigationVersion = 0
   private _inFlight?: { route: Route; promise: Promise<boolean> }
@@ -26,7 +26,7 @@ export class Router {
   
     const root = this.root
     const prevActive = root.activeLeaf!.rootToHereRouters
-    const isStale = this._bumpNavigationVersion()
+    const isStale = this.bumpNavigationVersion()
   
     const pathOnly = relRoute.pathOnly
     const relQuery = relRoute.query
@@ -34,9 +34,9 @@ export class Router {
     const absolute = this.rootToHereRoute.concat(pathOnly)
     const target = absolute.withQuery(relQuery)
 
-    const existing = this._getInFlight(target)
+    const existing = this.getInFlight(target)
     if (existing) return existing
-    if (this._shouldShortCircuit(target, action)) return Promise.resolve(true)
+    if (this.shouldShortCircuit(target, action)) return Promise.resolve(true)
 
     const job = (async (): Promise<boolean> => {
       const result = await matchRoute (this.root, target, action, isStale)
@@ -48,9 +48,9 @@ export class Router {
 
       this.root.routeService!.currentRoute = target      
       this.root.routeService?.syncHistory(action)
-      this._clearActiveSegments(prevActive)
-      this._fireRouterUpdateEvent()
-      this._fireNavigated()
+      this.clearActiveSegments(prevActive)
+      this.fireRouterUpdateEvent()
+      this.fireNavigated()
       return true
     })()
 
@@ -64,7 +64,7 @@ export class Router {
 
   get component() { return this._component }
 
-  private _fireRouterUpdateEvent (): void {
+  private fireRouterUpdateEvent (): void {
     const cur = this.root.routeService?.currentRoute
     if (cur) {
       this.component.update(<RouterEvent>{
@@ -73,28 +73,28 @@ export class Router {
     }
   }
 
-  private _bumpNavigationVersion(): () => boolean {
+  private bumpNavigationVersion(): () => boolean {
     this.root._navigationVersion++
     const token = this.root._navigationVersion
     return () => token !== this.root._navigationVersion
   }
 
-  private _getInFlight(target: Route): Promise<boolean> | undefined {
+  private getInFlight(target: Route): Promise<boolean> | undefined {
     return this.root._inFlight?.route.equals(target)
       ? this.root._inFlight.promise
       : undefined
   }
 
-  private _shouldShortCircuit(target: Route, action: Action): boolean {
+  private shouldShortCircuit(target: Route, action: Action): boolean {
     const cur = this.root.routeService?.currentRoute
     return action !== "POP" && cur ? target.equals(cur) : false
   }
 
-  private _fireNavigated(): void {
+  private fireNavigated(): void {
     this.root.activeLeaf!.rootToHereRouters.forEach(r => r.component.onNavigated())
   }
 
-  private _clearActiveSegments(prevActive: Router[]): void {
+  private clearActiveSegments(prevActive: Router[]): void {
     const newActive = this.root.activeLeaf!.rootToHereRouters
     prevActive
       .filter(r => !newActive.includes(r))
