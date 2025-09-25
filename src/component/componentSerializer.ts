@@ -27,10 +27,10 @@ export class ComponentSerializer<T extends Component> {
    */
   serialize() {
     const out: Record<string, any> = {}
-    const types = getTypes(this.component)
+    const serializerMap = this.component.serializerMap
 
     for (const k of dataKeys(this.component)) {      
-      if (types[k] === null) continue
+      if (serializerMap[k] === null) continue
 
       const v = (this.component as any)[k]
 
@@ -44,8 +44,8 @@ export class ComponentSerializer<T extends Component> {
         })
       } else if (isPrimitive(v) || isPlain(v)) {
         out[k] = v
-      } else if (k in types) {
-        const ser = getCustomSerializer(types[k])
+      } else if (k in serializerMap) {
+        const ser = getCustomSerializer(serializerMap[k])
         out[k] = ser?.toJSON ? ser.toJSON(v) : clone(v)
       }
     }
@@ -74,19 +74,19 @@ export class ComponentSerializer<T extends Component> {
   deserialize(data: any, outermost = true) {
     if (!data) return
 
-    const types = getTypes(this.component)
-    // Accept keys that are either dataKeys or explicitly declared in static types
+    const serializerMap = this.component.serializerMap
+    // Accept keys that are either `dataKeys` or explicitly declared in `serializerMap`
     const serialKeys = new Set<string>([
       ...dataKeys(this.component),
-      ...Object.keys(types)
+      ...Object.keys(serializerMap)
     ])
     const target: any = this.component
 
     for (const [k, rv] of Object.entries(data)) {
-      if (types[k] === null) continue
+      if (serializerMap[k] === null) continue
       if (!serialKeys.has(k)) continue
 
-      const typeInfo = types[k]
+      const typeInfo = serializerMap[k]
       const cv = target[k]
 
       /* 1. statically typed property */
@@ -201,8 +201,6 @@ export const dataKeys = (o: any): string[] => {
 }
 
 export const isDataKey = (o: any, k: string) => dataKeys(o).includes(k)
-
-const getTypes = (c: Component) => (c as any).getTypes?.() ?? {}
 
 const clone = (v: any) => JSON.parse(JSON.stringify(v))
 

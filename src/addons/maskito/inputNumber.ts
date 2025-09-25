@@ -5,7 +5,7 @@ import { inputMask } from './inputMask.js'
 
 export type InputNumberProps = DataBindProps<number | undefined> &
 {
-  inputAttrs?: VAttributes
+  attrs?: VAttributes
   numberParams?: MaskitoNumberParams
   plugins?: MaskitoPlugin[]
 }

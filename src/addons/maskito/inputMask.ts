@@ -23,18 +23,18 @@ export interface MaskValueConverter<T> {
 export type InputMaskProps<PropType> = DataBindProps<PropType> &
 {
   id?: string
-  inputAttrs?: VAttributes
+  attrs?: VAttributes
   maskitoOptions: MaskitoOptions
   converter: MaskValueConverter<PropType>
 }
 
 export function inputMask<PropType>(props: InputMaskProps<PropType>)
 {
-  const { id, target, prop, maskitoOptions, inputAttrs, converter } = props
+  const { id, target, prop, maskitoOptions, attrs, converter } = props
 
   return input({
-    type: inputAttrs?.type ?? 'text',
-    ...mergeAttrs({ id: id }, inputAttrs),
+    type: attrs?.type ?? 'text',
+    ...mergeAttrs({ id: id }, attrs),
     onInput: event => {
       const elm = event.target as HTMLInputElement
       setPropertyValue(target, prop, converter.parse(elm.value, getPropertyValue(target, prop)))

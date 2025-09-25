@@ -10,6 +10,7 @@ export { type IRouted, isRouted, type RouterEvent } from './router/routerTypes.j
 export { Route } from './router/route.js'
 export { RouteService } from './router/routeService.js'
 export { ComponentSerializer, type SerializerEvent, componentSkipProps } from './component/componentSerializer.js'
+export { type SerializerMap } from './component/serializerMap.js'
 export { isVElement, type OnUnmounted, type VAttributes, type VElement, type VNode } from './dom/dom.js'
 export { type HValue, type HValues, mergeAttrs, h } from './dom/html.js'
 export { equalsIgnoreCase, parseFloatDeNaN, fuzzyEquals, humanizeIdentifier, isNullOrEmpty, kebab } from './util.js'

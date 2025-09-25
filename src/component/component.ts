@@ -7,6 +7,7 @@ import { div } from '../dom/htmlGenElements.js'
 import { ComponentContext } from './componentContext.js'
 import { ComponentSerializer } from './componentSerializer.js'
 import { freezeProps } from '../util.js'
+import { SerializerMap as SerializerMap } from './serializerMap.js'
 
 /**
  * Base class for all Domeleon components.
@@ -95,16 +96,17 @@ export abstract class Component {
   onNavigated () { }
 
   /**
-   * Returns the `static types` property if you defined it, that provides type information
-   * to `serializer` during deserialization, (or `null` to omit properties during serialization/deserialization).
+   * Implement to map properties to classes, so that the deserializer can turn plain objects into classes.
+   * Useful for properties that can be undefined or empty arrays, hence lack a runtime type. Use `null` to omit
+   * properties during serialization/deserialization.
    * E.g.
    * ```
-   * class Component {
-   *   items: Item[]
-   *   created: Date
-   *   picker = new Picker()
+   * class MyComponent extends Component {
+   *   items? Item[]          // runtime type can be undefined or empty array
+   *   created?: Date         // runtime type can be undefined
+   *   picker = new Picker()  // runtime type is known but we don't want to serialize it
    * 
-   *   static types = {
+   *   serializerMap = SerializerMap<MyComponent> = {
    *     items: [Item]
    *     created: Date,
    *     picker: null // an alternative to prefixing property with `_` or `#`; useful for sub-components that you don't want to serialize
@@ -112,7 +114,5 @@ export abstract class Component {
    * }
    * ```
    */
-  getTypes(): Record<string, any> | undefined {
-    return (this.constructor as any).types
-  }
+  serializerMap: SerializerMap<any> = {}
 }

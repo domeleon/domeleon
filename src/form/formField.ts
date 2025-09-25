@@ -27,7 +27,7 @@ export interface FormFieldCoreProps<F> {
   /** 
    * Props specific to the chosen `inputFn`, excluding the standard `DataBindProps` 
    * (`target`, `prop`, `id`) which are handled by `formField` itself.
-   * Example: For `inputText`, this might include `inputAttrs`. For `inputSelect`, it might include `options`.
+   * Example: For `inputSelect`, it might include `options`.
    */
   inputProps?: InputProps<F>
 }
