@@ -60,10 +60,12 @@ export interface FormFieldExtraProps {
   labelAttrs?: VAttributes
   /** HTML attributes for the validation message container, e.g. to make validation errors red. */
   validationAttrs?: VAttributes
-  /** HTML attributes for the supporting text container. */
+  /** HTML attributes for the description div. */
   descriptionAttrs?: VAttributes
-  /** HTML attributes for the main control wrapper div that contains the input element. */
+  /** HTML attributes for the main control wrapper div that contains the input element and any prefix/suffix elements. */
   controlAttrs?: VAttributes
+  /** HTML attributes for the div containing both the label and control, but not the description. */
+  coreAttrs?: VAttributes
   /** Optional VNodes inserted before the input element within the control wrapper. */
   inputPrefix?: VElement[]
   /** Optional VNodes inserted after the input element within the control wrapper. */
@@ -107,7 +109,7 @@ export function formField<F extends InputFn<any, any>>(
 {
   const { target, prop, inputFn, inputProps, label: labelH, description, showLabel = true,    
     showValidation = true, fieldAttrs, labelAttrs, validationAttrs, descriptionAttrs,
-    controlAttrs, inputPrefix, inputSuffix,
+    controlAttrs, coreAttrs, inputPrefix, inputSuffix,
   } = props
 
   const bestLabel = labelH ?? getLabel(target, prop)
@@ -154,7 +156,7 @@ export function formField<F extends InputFn<any, any>>(
     showLabel ? label(labelAttrsWithFor, bestLabel) : undefined
 
   return div (fieldAndValidationAttrs,
-    div ({ style: { position: "relative" } }, // for material design floating labels
+    div (coreAttrs,
       externalLabel,
       div (controlAttrs, controlContent)
     ),
