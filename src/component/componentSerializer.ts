@@ -165,7 +165,7 @@ export const isWritable = (o: any, k: string): boolean => {
   return true
 }
 
-export const componentSkipProps = ['ctx', 'serializer', 'validator', 'router']
+export const componentSkipProps = ['ctx', 'serializer', "serializerMap", 'validator', 'router']
 
 const isFunctionValue = (o: any, k: string): boolean => {
   try { return typeof o[k] === 'function' } catch { return true }
