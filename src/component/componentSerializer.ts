@@ -71,7 +71,11 @@ export class ComponentSerializer<T extends Component> {
    * }
    * ```
    */
-  deserialize(data: any, outermost = true) {
+  deserialize(data: any) {
+    this.deserializeInternal(data, true)
+  }
+
+  private deserializeInternal(data: any, outermost = false) {
     if (!data) return
 
     const serializerMap = this.component.serializerMap
@@ -93,29 +97,32 @@ export class ComponentSerializer<T extends Component> {
       if (typeInfo) {
         if (Array.isArray(typeInfo) && Array.isArray(rv)) {
           const Elem = typeInfo[0]
-          target[k] = rv.map((item: any, i: number) =>
-            cv?.[i] instanceof Elem
-              ? (cv[i].serializer?.deserialize?.(item, false), cv[i])
-              : constructFromJSON(Elem, item)
-          )
+          target[k] = rv.map((item: any, i: number) => {
+            const current = cv?.[i]
+            return current instanceof Component 
+              ? (current.serializer.deserializeInternal(item), current)
+              : this.fromJSON(Elem, item)
+          })
           continue
         }
 
         if (!Array.isArray(typeInfo) && !Array.isArray(rv)) {
           if (cv instanceof Component) {
-            cv.serializer.deserialize(rv, false)
+            cv.serializer.deserializeInternal(rv)
             target[k] = cv       // reuse existing component instance
           } else {
-            target[k] = constructFromJSON(typeInfo, rv)  // Date & other non-component classes
+            target[k] = this.fromJSON(typeInfo, rv)  // Date & other non-component classes
           }
           continue
         }
-        // shape mismatch – fall through
+        // shape mismatch – overwrite to keep idempotence predictable
+        target[k] = rv
+        continue
       }
 
       /* 2. merge into existing Component */
       if (cv instanceof Component) {
-        cv.serializer.deserialize(rv, false)
+        cv.serializer.deserializeInternal(rv)
         continue
       }
 
@@ -127,7 +134,7 @@ export class ComponentSerializer<T extends Component> {
         for (let i = 0; i < n; i++) {
           const c = cv[i], r = rv[i]
           if (c instanceof Component) {
-            c.serializer.deserialize(r, false)
+            c.serializer.deserializeInternal(r)
           } else if (isPlain(c) && isPlain(r)) {
             Object.assign(c, r)
           } else {
@@ -142,6 +149,19 @@ export class ComponentSerializer<T extends Component> {
     }    
 
     if (outermost) { this.component.update({ cause: "serializer" }) }
+  }
+  
+  private fromJSON = (ctor: any, data: any): any => {
+    if (!ctor) return data
+    
+    // 1. custom handler registered in the global registry
+    const custom = getCustomSerializer(ctor)
+    if (custom?.fromJSON) return custom.fromJSON(data)
+
+    // 2. Generic construction + nested component hydration
+    const inst = new ctor()
+    if (inst instanceof Component) inst.serializer.deserializeInternal(data)
+    return inst
   }
 }
 
@@ -203,16 +223,3 @@ export const dataKeys = (o: any): string[] => {
 export const isDataKey = (o: any, k: string) => dataKeys(o).includes(k)
 
 const clone = (v: any) => JSON.parse(JSON.stringify(v))
-
-const constructFromJSON = (ctor: any, data: any): any => {
-  if (!ctor) return data
-  
-  // 1. custom handler registered in the global registry
-  const custom = getCustomSerializer(ctor)
-  if (custom?.fromJSON) return custom.fromJSON(data)
-
-  // 2. Generic construction + nested component hydration
-  const inst = new ctor(data)
-  if (inst instanceof Component) inst.serializer.deserialize(data)
-  return inst
-}

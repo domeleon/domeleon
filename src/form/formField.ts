@@ -66,7 +66,9 @@ export interface FormFieldExtraProps {
   controlAttrs?: VAttributes
   /** HTML attributes for the div containing both the label and control, but not the description. */
   coreAttrs?: VAttributes
-  /** Optional VNodes inserted before the input element within the control wrapper. */
+  /** HTML attributes for the extra div formField will wrap around a select element; commonly used by css frameworks. */
+  selectWrapperAttrs?: VAttributes
+  /** Optional VNodes inserted before the input element within the control wrapper. */  
   inputPrefix?: VElement[]
   /** Optional VNodes inserted after the input element within the control wrapper. */
   inputSuffix?: VElement[]
@@ -109,7 +111,7 @@ export function formField<F extends InputFn<any, any>>(
 {
   const { target, prop, inputFn, inputProps, label: labelH, description, showLabel = true,    
     showValidation = true, fieldAttrs, labelAttrs, validationAttrs, descriptionAttrs,
-    controlAttrs, coreAttrs, inputPrefix, inputSuffix,
+    controlAttrs, coreAttrs, inputPrefix, inputSuffix, selectWrapperAttrs,
   } = props
 
   const bestLabel = labelH ?? getLabel(target, prop)
@@ -143,7 +145,7 @@ export function formField<F extends InputFn<any, any>>(
     }
   }
   const isCheckbox = inputEl.nodeName === 'input' && inputEl.attributes?.type === 'checkbox'
-  const inputOrSelect = inputEl.nodeName === 'select' ? div(inputEl) : inputEl // necessary to overcome default select styling
+  const inputOrSelect = inputEl.nodeName === 'select' ? div(selectWrapperAttrs, inputEl) : inputEl // necessary to overcome default select styling
   const children = [inputPrefix, inputOrSelect, inputSuffix]
   const labelAttrsWithFor = { for: prefixedId, ...labelAttrs }
 

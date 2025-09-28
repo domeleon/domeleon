@@ -26,7 +26,6 @@ export class Router {
   
     const root = this.root
     const prevActive = root.activeLeaf!.rootToHereRouters
-    const isStale = this.bumpNavigationVersion()
   
     const pathOnly = relRoute.pathOnly
     const relQuery = relRoute.query
@@ -36,6 +35,7 @@ export class Router {
 
     const existing = this.getInFlight(target)
     if (existing) return existing
+    const isStale = this.bumpNavigationVersion()
     if (this.shouldShortCircuit(target, action)) return Promise.resolve(true)
 
     const job = (async (): Promise<boolean> => {
