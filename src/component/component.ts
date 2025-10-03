@@ -96,6 +96,11 @@ export abstract class Component {
   onNavigated () { }
 
   /**
+   * Called after a component has been deserialized.
+   */
+  onDeserialized() { }    
+
+  /**
    * Implement to map properties to classes, so that the deserializer can turn plain objects into classes.
    * Useful for properties that can be undefined or empty arrays, hence lack a runtime type. Use `null` to omit
    * properties during serialization/deserialization.

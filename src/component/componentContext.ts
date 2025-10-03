@@ -31,35 +31,23 @@ export class ComponentContext {
   get app() { return this._app }
 
   /** @internal */
-  attach(app: IApp) {    
-    this.attachInternal(app, this.parent, true)
+  attach(app: IApp) {
+    this.attachInternal(app, this.parent)
   }
-  
-  private attachInternal(app: IApp, parent?: Component, outermost = true) {    
-    this._app = app   
-    this._parent = parent   
-        
-    for (const child of this.children) {
+
+  private attachInternal(app: IApp, parent?: Component, deserialized = false): void {
+    this._app = app
+    this._parent = parent
+    for (const child of this.children)
       child.ctx.attachInternal(app, this.component, false)
-    }
+  
+    if (deserialized) this.traversePostOrder(c => c.onDeserialized())
 
-    if (outermost) { this.onAttachedInternal() }
-  }
-
-  private onAttachedInternal(): void {
-    this.traverse(c => {
+    this.traversePreOrder(c => {
       if (c.ctx.state === "detached") {
-        c.ctx._state = "updating"   
+        c.ctx._state = "updating"
         c.onAttached()
-      }      
-    })
-  }
-
-  /** @internal */
-  markRendered(): void {
-    this.traverse(c => { 
-      c.ctx._state = "rendered"
-      c.onRendered()
+      }
     })
   }
 
@@ -67,16 +55,40 @@ export class ComponentContext {
    * Ensures child components are attached, propagates updates to ancestors,
    * then triggers an app render.
    */
-  update(event?: Partial<UpdateEvent>) {    
-    if (this.app) { this.attachInternal(this.app, this.parent) }
-
-    if (this.state == "rendered")
+  update(event?: Partial<UpdateEvent>) {
+    if (this.app)
+      this.attachInternal(this.app, this.parent, event?.cause === "serializer")  
+  
+    if (this.state === "rendered")
       this._state = "updating"
-    const sourcedEvent = <UpdateEvent>{ ...event, component: this.component } 
-    for (const comp of this.rootToHere.reverse()) {
+
+    const sourcedEvent = <UpdateEvent>{ ...event, component: this.component }
+    for (const comp of this.rootToHere.reverse())
       comp.onUpdated(sourcedEvent)
-    }
+
     this._app?.update(sourcedEvent)
+  }
+
+  /** Performs a pre-order traversal (parent first) of the component tree. */
+  traversePreOrder(action: (component: Component) => void, visited: Set<Component> = new Set): void {
+    this.throwOnDupe(visited)
+    action(this.component)
+    for (const child of this.children) child.ctx.traversePreOrder(action, visited)
+  }
+  
+  /** Performs a post-order traversal (children first) of the component tree. */
+  traversePostOrder(action: (component: Component) => void, visited: Set<Component> = new Set): void {
+    this.throwOnDupe(visited)
+    for (const child of this.children) child.ctx.traversePostOrder(action, visited)
+    action(this.component)
+  }
+
+  /** @internal */
+  markRendered(): void {
+    this.traversePreOrder(c => { 
+      c.ctx._state = "rendered"
+      c.onRendered()
+    })
   }
 
   /** The root component of the component tree. */
@@ -121,20 +133,18 @@ export class ComponentContext {
     return dataKeys(this.component) 
   }
 
-  /**
-   * Recursively traverses the component tree and applies an action to each component,
-   * children first (a pre-order traversal).
-   */
-  traverse(action: (component: Component) => void, visited: Set<Component> = new Set()): void {
+  private throwOnDupe(visited: Set<Component>): void {
     if (visited.has(this.component)) {
-      return
+      const path = this.rootToHere
+        .map(c => `${c.constructor.name}-${c.ctx.componentId}`)
+        .join(' -> ')
+      throw new Error(
+        `Component graph invariant violated: duplicate reference or cycle at ` +
+        `Path: ${path}\n` +
+        `Hint: use a get-only property or a private field (_ or #) for back references.`
+      )
     }
     visited.add(this.component)
-    
-    action(this.component)
-    for (const child of this.children) {
-      child.ctx.traverse(action, visited)
-    }    
   }
       
   /** Returns properties of the associated component that are also components. */

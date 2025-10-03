@@ -72,10 +72,11 @@ export class ComponentSerializer<T extends Component> {
    * ```
    */
   deserialize(data: any) {
-    this.deserializeInternal(data, true)
+    this.deserializeInternal(data)    
+    this.component.update({ cause: "serializer" })
   }
 
-  private deserializeInternal(data: any, outermost = false) {
+  private deserializeInternal(data: any) {
     if (!data) return
 
     const serializerMap = this.component.serializerMap
@@ -146,9 +147,7 @@ export class ComponentSerializer<T extends Component> {
 
       /* 4. primitive / plain / array overwrite */
       if (isPrimitive(rv) || isPlain(rv) || Array.isArray(rv)) target[k] = rv
-    }    
-
-    if (outermost) { this.component.update({ cause: "serializer" }) }
+    }        
   }
   
   private fromJSON = (ctor: any, data: any): any => {
