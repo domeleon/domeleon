@@ -6,7 +6,11 @@ export type CustomSerializer<T = any> = {
 const registry = new Map<any, CustomSerializer>([
   [Date, {
     toJSON: (v: Date) => (v instanceof Date ? v.toISOString() : v),
-    fromJSON: (d: any) => (d instanceof Date ? d : new Date(d)),
+    fromJSON: (d: any) => {
+      if (d == null) return d
+      const date = d instanceof Date ? d : new Date(d)
+      return isNaN(date.getTime()) ? undefined : date
+    }
   }]
 ])
 
