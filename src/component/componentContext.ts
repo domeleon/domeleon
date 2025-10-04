@@ -35,20 +35,23 @@ export class ComponentContext {
     this.attachInternal(app, this.parent)
   }
 
-  private attachInternal(app: IApp, parent?: Component, deserialized = false): void {
+  private attachInternal(app?: IApp, parent?: Component, deserialized = false): void {    
+    this.attachTraverse(app, parent)    
+    if (deserialized) this.traversePostOrder(c => c.onDeserialized())
+    if (app)
+      this.traversePreOrder(c => {
+        if (c.ctx.state === "detached") {
+          c.ctx._state = "updating"
+          c.onAttached()
+        }
+      })
+  }
+
+  private attachTraverse(app?: IApp, parent?: Component): void {    
     this._app = app
     this._parent = parent
     for (const child of this.children)
-      child.ctx.attachInternal(app, this.component, false)
-  
-    if (deserialized) this.traversePostOrder(c => c.onDeserialized())
-
-    this.traversePreOrder(c => {
-      if (c.ctx.state === "detached") {
-        c.ctx._state = "updating"
-        c.onAttached()
-      }
-    })
+      child.ctx.attachTraverse(app, this.component)
   }
 
   /**
@@ -56,8 +59,7 @@ export class ComponentContext {
    * then triggers an app render.
    */
   update(event?: Partial<UpdateEvent>) {
-    if (this.app)
-      this.attachInternal(this.app, this.parent, event?.cause === "serializer")  
+    this.attachInternal(this.app, this.parent, event?.cause === "serializer")
   
     if (this.state === "rendered")
       this._state = "updating"
