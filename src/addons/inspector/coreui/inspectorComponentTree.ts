@@ -62,7 +62,7 @@ export class InspectorComponentTree extends Component {
       const id = ''+c.ctx.componentId
       next.set(id, prev.get(id) ?? depth >= autoOpenDepth)
 
-      for (const key of c.ctx.dataKeys) {
+      for (const key of c.ctx.keys) {
         const v = (c as any)[key]
         if (Array.isArray(v) && v.length) {
           const aid = `${id}-array-${key}`
@@ -175,7 +175,7 @@ export class InspectorComponentTree extends Component {
       ['routeSegment', (comp as any).routeSegment],
       ['router.activeSegment', router?.activeSegment],
       ['validator.state', (comp as any).validator?.validationState],
-      ...comp.ctx.dataKeys.filter(k => k!=='routeSegment').map(k => [k,(comp as any)[k]] as [string, unknown]),
+      ...comp.ctx.keys.filter(k => k!=='routeSegment').map(k => [k,(comp as any)[k]] as [string, unknown]),
     ]
     const primitives = primEntries
       .map(([k,v]) => this.primitive(k,v,d+2,'public'))

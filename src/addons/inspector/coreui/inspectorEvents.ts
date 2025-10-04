@@ -29,7 +29,7 @@ export class InspectorEvents extends Component {
     const prev = this._stateChanges.get(evt.component)
     const curr: Record<string, any> = {}
 
-    evt.component.ctx.dataKeys.forEach(k => {
+    evt.component.ctx.keys.forEach(k => {
       const v = (evt.component as any)[k]
       if (isPrimitive(v)) curr[k] = v
     })

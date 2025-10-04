@@ -1,5 +1,5 @@
 import { Component } from './component.js'
-import { dataKeys, isDataKey } from './componentSerializer.js'
+import { keysOfComponent, isKeyOfComponent, serializedKeys } from './componentSerializer.js'
 import { type IApp, type UpdateEvent, type ComponentState } from './componentTypes.js'
 
 export class ComponentContext {      
@@ -113,7 +113,7 @@ export class ComponentContext {
 
   /** Returns direct child components, flattening out arrays of components. */
   get children(): Component[] {
-    return dataKeys(this.component).flatMap(key => {
+    return keysOfComponent(this.component).flatMap(key => {
       const val = (this.component as any)[key]
       if (val instanceof Component) {
         return [val]
@@ -126,11 +126,16 @@ export class ComponentContext {
   }
 
   /**
-   * Returns all read/write properties that define the persistable state of the component.
-   * Domeleon only serializes data keys, and only data keys show in the Component Inspector.
+   * Returns all the properties that partake in the updatable component tree, consisting of
+   * read/write properties not starting with `_` (which are considered private).
   */
-  get dataKeys(): string[] {
-    return dataKeys(this.component) 
+  get keys(): string[] {
+    return keysOfComponent(this.component) 
+  }
+
+  /** Returns keys that will be serialized, which are `keys` further filtered by `serializerMap[key] === null`. */
+  get keysSerialized(): string[] {
+    return serializedKeys(this.component)
   }
 
   private throwOnDupe(visited: Set<Component>): void {
@@ -147,22 +152,22 @@ export class ComponentContext {
     visited.add(this.component)
   }
       
-  /** Returns properties of the associated component that are also components. */
+  /** Returns keys that are also components. */
   childrenKeys(): string[] {
-    return dataKeys(this.component)
+    return keysOfComponent(this.component)
       .filter(k => (this.component as any)[k] instanceof Component)
   }
 
   /** Returns a child component by key, if the child is a field of this context's component. */
   childByKey(key: string) : Component | undefined {
-    if (!isDataKey(this.component, key)) return undefined
+    if (!isKeyOfComponent(this.component, key)) return undefined
     const c = (this.component as any)[key]
     return c instanceof Component ? c : undefined
   }
 
-  /** Returns the field name of the component, if the components is a field of this context's component. */
+  /** Returns the field name of the component, if the component is a field of this context's component. */
   childKey(component: Component) : string | undefined {
-    return dataKeys(this.component)
+    return keysOfComponent(this.component)
       .find(k => (this.component as any)[k] === component)
   }
 }

@@ -8,7 +8,7 @@ export class ComponentSerializer<T extends Component> {
   /**
    * Serialize the component into a JSON object, recursing into child components.
    * 
-   * Only read/write properties as described by `ctx.dataKeys` will be serialized.
+   * Only read/write properties as described by `ctx.serializedKeys` will be serialized.
    * 
    * Automatically called when an App is saved to local storage.
    * 
@@ -29,9 +29,7 @@ export class ComponentSerializer<T extends Component> {
     const out: Record<string, any> = {}
     const serializerMap = this.component.serializerMap
 
-    for (const k of dataKeys(this.component)) {      
-      if (serializerMap[k] === null) continue
-
+    for (const k of serializedKeys(this.component)) {
       const v = (this.component as any)[k]
 
       if (v instanceof Component) {
@@ -80,9 +78,9 @@ export class ComponentSerializer<T extends Component> {
     if (!data) return
 
     const serializerMap = this.component.serializerMap
-    // Accept keys that are either `dataKeys` or explicitly declared in `serializerMap`
+    // Accept keys that are either `keys` or explicitly declared in `serializerMap`
     const serialKeys = new Set<string>([
-      ...dataKeys(this.component),
+      ...keysOfComponent(this.component),
       ...Object.keys(serializerMap)
     ])
     const target: any = this.component
@@ -190,8 +188,8 @@ const isFunctionValue = (o: any, k: string): boolean => {
   try { return typeof o[k] === 'function' } catch { return true }
 }
 
-export const dataKeys = (o: any): string[] => {
-  const keys = new Set<string>()
+export const keysOfComponent = (o: any): string[] => {
+  const result = new Set<string>()
 
   // 1) own enumerable
   for (const k of Object.keys(o)) {
@@ -200,7 +198,7 @@ export const dataKeys = (o: any): string[] => {
       isWritable(o, k) &&
       ! k.startsWith('_') &&
       !isFunctionValue(o, k)
-    ) keys.add(k)
+    ) result.add(k)
   }
 
   // 2) prototype accessors (getter+setter)
@@ -210,15 +208,20 @@ export const dataKeys = (o: any): string[] => {
     proto = Object.getPrototypeOf(proto)
   ) {
     for (const k of Object.getOwnPropertyNames(proto)) {
-      if (keys.has(k) || componentSkipProps.includes(k)) continue
+      if (result.has(k) || componentSkipProps.includes(k)) continue
       const d = Object.getOwnPropertyDescriptor(proto, k)!
-      if (d.get && d.set && !isFunctionValue(o, k)) keys.add(k)
+      if (d.get && d.set && !isFunctionValue(o, k)) result.add(k)
     }
   }
 
-  return [...keys]
+  return [...result]
 }
 
-export const isDataKey = (o: any, k: string) => dataKeys(o).includes(k)
+export const isKeyOfComponent = (o: any, k: string) => keysOfComponent(o).includes(k)
+
+export const serializedKeys = (component: Component): string[] => {
+  const map = component.serializerMap
+  return keysOfComponent(component).filter(k => map[k] !== null)
+}
 
 const clone = (v: any) => JSON.parse(JSON.stringify(v))
