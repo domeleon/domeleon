@@ -96,7 +96,9 @@ export abstract class Component {
   onNavigated () { }
 
   /**
-   * Called after a component has been deserialized.
+   * Called after a component and its children have been deserialized, children first, recursively.
+   * `onDeserialized` has early access to `ctx.parent` and `ctx.app` (when available) enabling contextual
+   * validation, even if `onAttached` has yet to be called. `onUpdated` will always be called afterwards.
    */
   onDeserialized() { }    
 

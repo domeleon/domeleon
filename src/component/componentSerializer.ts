@@ -3,14 +3,22 @@ import { type UpdateEvent } from './componentTypes.js'
 import { getCustomSerializer } from './customSerializers.js'
 
 export class ComponentSerializer<T extends Component> {
+
   constructor(readonly component: T) {}
+
+  /**
+   * The component's serialization keys, which are `ctx.keys` (public, read/write, not prefixed with `_`,
+   * not functions), further filtered by `serializerMap[key] === null`.
+   */
+  get keys(): string[] {      
+    const map = this.component.serializerMap
+    return this.component.ctx.keys.filter(k => map[k] !== null)    
+  }
 
   /**
    * Serialize the component into a JSON object, recursing into child components.
    * 
-   * Only read/write properties as described by `ctx.serializedKeys` will be serialized.
-   * 
-   * Automatically called when an App is saved to local storage.
+   * Only `serializer.keys` will be serialized.
    * 
    * Usage:
    * 
@@ -29,7 +37,7 @@ export class ComponentSerializer<T extends Component> {
     const out: Record<string, any> = {}
     const serializerMap = this.component.serializerMap
 
-    for (const k of serializedKeys(this.component)) {
+    for (const k of this.keys) {
       const v = (this.component as any)[k]
 
       if (v instanceof Component) {
@@ -53,8 +61,6 @@ export class ComponentSerializer<T extends Component> {
 
   /**
    * Deserialize a JSON object into the component, recursing into child components.
-   * 
-   * Automatically called when an App is loaded from local storage.
    * 
    * Usage:
    * 
@@ -80,7 +86,7 @@ export class ComponentSerializer<T extends Component> {
     const serializerMap = this.component.serializerMap
     // Accept keys that are either `keys` or explicitly declared in `serializerMap`
     const serialKeys = new Set<string>([
-      ...keysOfComponent(this.component),
+      ...this.component.ctx.keys,
       ...Object.keys(serializerMap)
     ])
     const target: any = this.component
@@ -172,56 +178,6 @@ const isPrimitive = (v: any) =>
 const isPlain = (v: any) => {
   const p = v && typeof v === 'object' ? Object.getPrototypeOf(v) : null
   return p === Object.prototype || p === null
-}
-
-export const isWritable = (o: any, k: string): boolean => {
-  for (let p: any = o; p; p = Object.getPrototypeOf(p)) {
-    const d = Object.getOwnPropertyDescriptor(p, k)
-    if (d) return !!d.set || !!d.writable
-  }
-  return true
-}
-
-export const componentSkipProps = ['ctx', 'serializer', "serializerMap", 'validator', 'router']
-
-const isFunctionValue = (o: any, k: string): boolean => {
-  try { return typeof o[k] === 'function' } catch { return true }
-}
-
-export const keysOfComponent = (o: any): string[] => {
-  const result = new Set<string>()
-
-  // 1) own enumerable
-  for (const k of Object.keys(o)) {
-    if (
-      !componentSkipProps.includes(k) &&
-      isWritable(o, k) &&
-      ! k.startsWith('_') &&
-      !isFunctionValue(o, k)
-    ) result.add(k)
-  }
-
-  // 2) prototype accessors (getter+setter)
-  for (
-    let proto = Object.getPrototypeOf(o);
-    proto && proto !== Object.prototype;
-    proto = Object.getPrototypeOf(proto)
-  ) {
-    for (const k of Object.getOwnPropertyNames(proto)) {
-      if (result.has(k) || componentSkipProps.includes(k)) continue
-      const d = Object.getOwnPropertyDescriptor(proto, k)!
-      if (d.get && d.set && !isFunctionValue(o, k)) result.add(k)
-    }
-  }
-
-  return [...result]
-}
-
-export const isKeyOfComponent = (o: any, k: string) => keysOfComponent(o).includes(k)
-
-export const serializedKeys = (component: Component): string[] => {
-  const map = component.serializerMap
-  return keysOfComponent(component).filter(k => map[k] !== null)
 }
 
 const clone = (v: any) => JSON.parse(JSON.stringify(v))

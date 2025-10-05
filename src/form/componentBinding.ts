@@ -8,6 +8,10 @@ export interface InputEvent extends UpdateEvent {
   cause: "input"
 }
 
+/**
+ * Returns the property name from a property access expression, e.g. `key(() => obj.username)` returns `"username"`.
+ * For a nested property access expression, only returns the last property (e.g. `key(() => a.b.c)` returns `"c"`).
+ */
 export function key (propertyAccess: () => any) {
   return (""+propertyAccess).match (/\.([a-zA-Z_$][0-9a-zA-Z_$]*)[^\.]*$/)![1]
 }

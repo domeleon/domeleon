@@ -1,5 +1,5 @@
 import { Component } from './component.js'
-import { keysOfComponent, isKeyOfComponent, serializedKeys } from './componentSerializer.js'
+import { keysOfComponent } from './componentTypes.js'
 import { type IApp, type UpdateEvent, type ComponentState } from './componentTypes.js'
 
 export class ComponentContext {      
@@ -128,16 +128,11 @@ export class ComponentContext {
   }
 
   /**
-   * Returns all the properties that partake in the updatable component tree, consisting of
-   * read/write properties not starting with `_` (which are considered private).
+   * The component's properties filtered to only be public, read/write, not prefixed with `_`,
+   * not functions, which domeleon will consider part of the updatable component tree.
   */
   get keys(): string[] {
     return keysOfComponent(this.component) 
-  }
-
-  /** Returns keys that will be serialized, which are `keys` further filtered by `serializerMap[key] === null`. */
-  get keysSerialized(): string[] {
-    return serializedKeys(this.component)
   }
 
   private throwOnDupe(visited: Set<Component>): void {
@@ -156,20 +151,19 @@ export class ComponentContext {
       
   /** Returns keys that are also components. */
   childrenKeys(): string[] {
-    return keysOfComponent(this.component)
+    return this.keys
       .filter(k => (this.component as any)[k] instanceof Component)
   }
 
   /** Returns a child component by key, if the child is a field of this context's component. */
   childByKey(key: string) : Component | undefined {
-    if (!isKeyOfComponent(this.component, key)) return undefined
+    if (!this.keys.includes(key)) return undefined
     const c = (this.component as any)[key]
     return c instanceof Component ? c : undefined
   }
 
   /** Returns the field name of the component, if the component is a field of this context's component. */
   childKey(component: Component) : string | undefined {
-    return keysOfComponent(this.component)
-      .find(k => (this.component as any)[k] === component)
+    return this.keys.find(k => (this.component as any)[k] === component)
   }
 }
