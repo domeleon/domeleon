@@ -41,7 +41,7 @@ Here's a Counter component in Domeleon within an HTML page. No build step requir
 <!-- index.html -->
 <div id="app"></div>
 <script type="module">
-  import { App, Component, div, button } from 'https://cdn.skypack.dev/domeleon@latest'
+  import { app, Component, div, button } from 'https://esm.sh/domeleon@latest'
 
   class Counter extends Component {
     count = 0
@@ -59,10 +59,7 @@ Here's a Counter component in Domeleon within an HTML page. No build step requir
     }
   }
 
-new App({
-  rootComponent: new Counter(),
-  containerId: 'app'
-})
+app({ root: new Counter(), id: 'app' })
 </script>
 ```
 
@@ -82,10 +79,10 @@ npm install domeleon
 ## ES module CDNs:
 ```js
 // skypack
-import { App, Component, div, button } from 'https://cdn.skypack.dev/domeleon@latest'
+import { app, Component, div, button } from 'https://cdn.skypack.dev/domeleon@latest'
 
 // esm.sh
-import { App, Component, div, button } from 'https://esm.sh/domeleon@latest'
+import { app, Component, div, button } from 'https://esm.sh/domeleon@latest'
 ```
 
 ## LLM Usage

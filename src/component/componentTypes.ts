@@ -1,5 +1,5 @@
 import type { Component } from "./component.js"
-
+import type { Renderer } from "../renderers/renderer.js"
 export type ComponentState = "detached" | "updating" | "rendered"
 
 export type UpdateCause = "input" | "validator" | "router" | "serializer"
@@ -14,6 +14,7 @@ export interface UpdateEvent {
 export interface IApp {
   update(event: UpdateEvent): void
   root: Component
+  renderer: Renderer<any>
 }
 
 export const componentSkipProps = ['ctx', 'serializer', "serializerMap", 'validator', 'router']
