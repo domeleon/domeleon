@@ -10,8 +10,8 @@ import { debounce } from '../util.js'
 import { AppPlugins, type AppPlugin } from './appPlugin.js'
 
 export interface AppSetupProps {    
-  rootComponent: Component,
-  containerId: string,
+  root: Component,
+  id: string,
   renderer?: Renderer<any>    
   cssAdapter?: CssAdapter
   routeService?: RouteService
@@ -19,44 +19,44 @@ export interface AppSetupProps {
   plugins?: AppPlugin<any>[]
 }
 
-export class App implements IApp {
+class App implements IApp {
   private _lock = false
   private _pending = false  
   readonly serializer: AppSerializer
   readonly renderer: Renderer<any>   
   readonly routeService: RouteService
-  private readonly _rootComponent: Component    
+  private readonly _root: Component    
   private readonly _props: AppSetupProps
   private readonly _rootElement: Element | null = null  
-  private readonly _containerId: string
+  private readonly _id: string
   private readonly _saveDebounce: () => void   
   private readonly _plugins: AppPlugins
 
   constructor (props: AppSetupProps) {
-    this._containerId = props.containerId
-    this._rootComponent = props.rootComponent
+    this._id = props.id
+    this._root = props.root
     this._props = props
     this.renderer = props.renderer ?? createDefaultRenderer()
-    this._rootElement = document.getElementById(props.containerId)    
+    this._rootElement = document.getElementById(props.id)    
     this._saveDebounce = debounce(() => this.save(), 200)
 
     this.serializer = new AppSerializer({
-      containerId: props.containerId,
-      rootComponent: this._rootComponent,
+      id: props.id,
+      root: this._root,
       refresh: () => this.render(),
       autoPersist: props.autoPersist ?? false
     })    
     
     this.routeService = props.routeService ?? new RouteService()
     this.routeService.init(this) 
-    this._rootComponent.ctx.attach(this)
+    this._root.ctx.attach(this)
     this._plugins = new AppPlugins(this, props.plugins ?? [])
     this.render()
   }
 
-  get containerId() { return this._containerId }  
+  get containerId() { return this._id }  
 
-  get rootComponent(): Component { return this._rootComponent }
+  get root(): Component { return this._root }
 
   private render() {
     if (this._lock) {
@@ -68,10 +68,10 @@ export class App implements IApp {
         
     requestAnimationFrame(async () => {   
       try {   
-        const vNode = this._rootComponent.view()      
+        const vNode = this._root.view()      
         await cssManager.flushClasses(this._props.cssAdapter)
         this.renderer.patch(vNode, this._rootElement!)
-        this.rootComponent.ctx.markRendered()
+        this.root.ctx.markRendered()
         this._plugins.onRendered()
       }
       finally {
@@ -97,4 +97,9 @@ export class App implements IApp {
       this.serializer.save()
     }    
   }
+}
+
+/** Mounts your Domeleon `root` component on a DOM element with the given `id`. */
+export function app (props: AppSetupProps) : IApp {
+  return new App(props)
 }

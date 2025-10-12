@@ -1,4 +1,4 @@
-export { App, type AppSetupProps } from './app/app.js'
+export { app, type AppSetupProps } from './app/app.js'
 export { AppSerializer } from './app/appSerializer.js'
 export type { AppPlugin } from './app/appPlugin.js'
 export { Component } from './component/component.js'

@@ -1,10 +1,10 @@
-import { App, type IApp, type UpdateEvent } from 'domeleon'
+import { app, type IApp, type UpdateEvent } from 'domeleon'
 import { themeMgr } from './theme/inspectorTheme.js'
 import { defaultInspectorSettings, type IInspector, type InspectorSettings } from './inspectorType.js'
 import { InspectorPanel } from './coreui/inspectorPanel.js'
 
 export class Inspector implements IInspector {
-  private readonly _inspectorApp: App
+  private readonly _inspectorApp: IApp
   private readonly _hostElement: HTMLDivElement
   private readonly _toggleHandle: HTMLDivElement
   private readonly _settings: InspectorSettings
@@ -18,10 +18,10 @@ export class Inspector implements IInspector {
     this._containerId = this._hostId
     this._hostElement = this.ensureHostElement()
 
-    this._inspectorPanel = new InspectorPanel(targetApp.rootComponent, this)
-    this._inspectorApp = new App({
-      rootComponent: this._inspectorPanel,
-      containerId: this._containerId,
+    this._inspectorPanel = new InspectorPanel(targetApp.root, this)
+    this._inspectorApp = app({
+      root: this._inspectorPanel,
+      id: this._containerId,
       autoPersist: true,
       cssAdapter: themeMgr.unoCssAdapter,
       plugins: [{ onUpdated: () => { this.refreshInspectorContainerUI() } }]

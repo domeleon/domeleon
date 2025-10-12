@@ -2,8 +2,8 @@ import { Component } from '../component/component.js'
 import { LocalStorageSerializer } from './appStorage.js'
 
 export interface PersisterHost {
-  containerId: string
-  rootComponent: Component
+  id: string
+  root: Component
   refresh(): void  
   autoPersist: boolean
 }
@@ -21,11 +21,11 @@ export class AppSerializer {
   }
 
   private serialize() {
-    return this._host.rootComponent.serializer.serialize()
+    return this._host.root.serializer.serialize()
   }
 
   private deserialize(state: any) {
-    this._host.rootComponent.serializer.deserialize(state)
+    this._host.root.serializer.deserialize(state)
     this._host.refresh()
   }  
 
@@ -43,7 +43,7 @@ export class AppSerializer {
 
   private createStorage() {
     return new LocalStorageSerializer({
-      key: this._host.containerId,
+      key: this._host.id,
       serialize: () => JSON.stringify(this.serialize()),
       deserialize: state => this.deserialize(JSON.parse(state))      
     })

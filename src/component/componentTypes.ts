@@ -13,7 +13,7 @@ export interface UpdateEvent {
 
 export interface IApp {
   update(event: UpdateEvent): void
-  rootComponent: Component
+  root: Component
 }
 
 export const componentSkipProps = ['ctx', 'serializer', "serializerMap", 'validator', 'router']

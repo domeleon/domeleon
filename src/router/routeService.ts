@@ -26,7 +26,7 @@ export class RouteService implements IRouteService {
   }
 
   init(app: App): void {
-    const root = app.rootComponent
+    const root = app.root
     if (!isRouted(root)) return
     
     root.router.routeService = this
