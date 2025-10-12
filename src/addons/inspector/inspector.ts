@@ -10,27 +10,27 @@ export class Inspector implements IInspector {
   private readonly _settings: InspectorSettings
   private readonly _inspectorPanel: InspectorPanel
   private readonly _hostId!: string
-  private readonly _containerId!: string
+  private readonly _id!: string
 
   constructor(targetApp: IApp, settingsOverrides: Partial<InspectorSettings> = {}) {
     this._settings = { ...defaultInspectorSettings, ...settingsOverrides }
     this._hostId = "inspector"
-    this._containerId = this._hostId
+    this._id = this._hostId
     this._hostElement = this.ensureHostElement()
 
     this._inspectorPanel = new InspectorPanel(targetApp.root, this)
     this._inspectorApp = app({
       root: this._inspectorPanel,
-      id: this._containerId,
+      id: this._id,
       autoPersist: true,
       cssAdapter: themeMgr.unoCssAdapter,
-      plugins: [{ onUpdated: () => { this.refreshInspectorContainerUI() } }]
+      plugins: [{ onUpdated: () => { this.refreshInspectorHostUI() } }]
     })    
     this._toggleHandle = this.createToggler()      
-    this.refreshInspectorContainerUI()
+    this.refreshInspectorHostUI()
   }
 
-  private refreshInspectorContainerUI() {
+  private refreshInspectorHostUI() {
     this.refreshHostElement()
     this.refreshToggler()
     setTimeout(() => { this._hostElement.style.opacity = '1'}, 0)
@@ -48,7 +48,7 @@ export class Inspector implements IInspector {
 
   set isVisible(value: boolean) {
     localStorage.setItem(`${this._hostId}-visible`, value.toString())
-    this.refreshInspectorContainerUI()
+    this.refreshInspectorHostUI()
     if (value) {
       this._inspectorPanel.update()
     }

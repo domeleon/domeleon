@@ -1,7 +1,7 @@
 import { isRouted, type IRouteService } from './routerTypes.js'
 import { Route } from './route.js'
 import { HistorySync, type Action } from './history.js'
-import type { App } from '../app/app.js'
+import type { IApp } from '../component/componentTypes.js'
 import type { Router } from './router.js'
 
 export interface RouteServiceOptions {
@@ -25,7 +25,7 @@ export class RouteService implements IRouteService {
     this._history?.sync(action)
   }
 
-  init(app: App): void {
+  init(app: IApp): void {
     const root = app.root
     if (!isRouted(root)) return
     
