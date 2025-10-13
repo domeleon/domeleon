@@ -1,4 +1,4 @@
-import { app, type IApp, type UpdateEvent } from 'domeleon'
+import { App, type IApp, type UpdateEvent } from 'domeleon'
 import { themeMgr } from './theme/inspectorTheme.js'
 import { defaultInspectorSettings, type IInspector, type InspectorSettings } from './inspectorType.js'
 import { InspectorPanel } from './coreui/inspectorPanel.js'
@@ -19,7 +19,7 @@ export class Inspector implements IInspector {
     this._hostElement = this.ensureHostElement()
 
     this._inspectorPanel = new InspectorPanel(targetApp.root, this)
-    this._inspectorApp = app({
+    this._inspectorApp = new App({
       root: this._inspectorPanel,
       id: this._id,
       autoPersist: true,

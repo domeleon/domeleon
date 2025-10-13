@@ -9,17 +9,41 @@ import { RouteService } from '../router/routeService.js'
 import { debounce } from '../util.js'
 import { AppPlugins, type AppPlugin } from './appPlugin.js'
 
-export interface AppSetupProps {    
+/**
+ * Configures your Domeleon app.
+ */
+export interface AppSetupProps {
+  /** The root component of your app. */
   root: Component,
+  /** The `id` of the DOM element to mount the root component on. */
   id: string,
-  renderer?: Renderer<any>    
-  cssAdapter?: CssAdapter
-  routeService?: RouteService
-  autoPersist?: boolean
+  /**
+   * Renderer to use for the app.
+   * Defaults to Domeleon's `PreactRenderer`.
+   * You may specify `ReactRenderer` or `VueRenderer` imported from `domeleon/react` or `domeleon/vue`.
+   */
+  renderer?: Renderer<any>,
+  /**
+   * CSS adapter to use for the app, used for pluggable CSS-in-JS or utility class workflows.
+   * For example, specify `themeMgr.unoCssAdapter`.
+   */
+  cssAdapter?: CssAdapter,
+  /**
+   * Custom route service for the app; useful for setting a base path, e.g. `new RouteService({ basePath: "admin" })`.
+   */
+  routeService?: RouteService,
+  /**
+   * Whether to automatically persist the app's state to local storage (useful for development when hot reloading).
+   */
+  autoPersist?: boolean,
+  /**
+   * Plugins to use for the app, e.g. `[inspector]` imported from `domeleon/inspector`.
+   */
   plugins?: AppPlugin<any>[]
 }
 
-class App implements IApp {
+/** Manages the lifecycle of your Domeleon app. */
+export class App implements IApp {
   private _lock = false
   private _pending = false  
   readonly serializer: AppSerializer
@@ -32,6 +56,9 @@ class App implements IApp {
   private readonly _saveDebounce: () => void   
   private readonly _plugins: AppPlugins
 
+  /**
+   * Configures and mounts your Domeleon `root` component on a DOM element with the given `id`.
+   */
   constructor (props: AppSetupProps) {
     this._id = props.id
     this._root = props.root
@@ -97,9 +124,4 @@ class App implements IApp {
       this.serializer.save()
     }    
   }
-}
-
-/** Mounts your Domeleon `root` component on a DOM element with the given `id`. */
-export function app (props: AppSetupProps) : IApp {
-  return new App(props)
 }
