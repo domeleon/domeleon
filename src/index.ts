@@ -13,9 +13,9 @@ export { ComponentSerializer, type SerializerEvent } from './component/component
 export { type SerializerMap } from './component/serializerMap.js'
 export { isVElement, type OnUnmounted, type VAttributes, type VElement, type VNode } from './dom/dom.js'
 export { type HValue, type HValues, mergeAttrs, h } from './dom/html.js'
-export { equalsIgnoreCase, parseFloatDeNaN, fuzzyEquals, humanizeIdentifier, isNullOrEmpty, kebab } from './util.js'
-export { getLabel, getDescription, getPropertyKey, getPropertyValue, setPropertyValue, key,
-  type DataBindProps, type PropertyRef, type ILabelMap, type ILabel, type ILabeled, type InputEvent } from './form/componentBinding.js'
+export { type PropertyRef, key, getPropertyKey, equalsIgnoreCase, parseFloatDeNaN, fuzzyEquals, humanizeIdentifier, isNullOrEmpty, kebab } from './util.js'
+export { getLabel, getDescription, getPropertyValue, setPropertyValue,
+  type DataBindProps, type ILabelMap, type ILabel, type ILabeled, type InputEvent } from './form/componentBinding.js'
 export { bindChecked, bindChoice, bindRangeValue, bindValue,
   type BindChoices, type Flag } from './form/formBinding.js'
 export { 

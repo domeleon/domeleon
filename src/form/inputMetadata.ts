@@ -3,7 +3,8 @@ import type { VAttributes } from '../dom/dom.js'
 import { div, p } from '../dom/htmlGenElements.js'
 import type { ValidatorError } from './validationTypes.js'
 import { isValidated } from './validator.js'
-import { getDescription, type PropertyRef } from './componentBinding.js'
+import { type PropertyRef } from '../util.js'
+import { getDescription } from './componentBinding.js'
 import { type HValues } from '../dom/html.js'
 
 const validationMessage = (
@@ -34,17 +35,17 @@ const hasBeenValidated = (component: Component) =>
 export const getInputMetadata = (
   target: Component,
   prop: PropertyRef<unknown>,
-  prefixedId: string,
+  qualifiedId: string,
   description?: HValues,
   descriptionAttrs?: VAttributes,
   showValidation = true,
   validationAttrs?: VAttributes  
 ) =>
 {
-  const validationId = `${prefixedId}-messages`
+  const validationId = `${qualifiedId}-messages`
 
   const bestDescription = description ?? getDescription(target, prop)
-  const descriptionId = bestDescription ? `${prefixedId}-description` : undefined
+  const descriptionId = bestDescription ? `${qualifiedId}-description` : undefined
   const descriptionDiv = bestDescription && div({ ...descriptionAttrs, id: descriptionId }, bestDescription)
 
   const error = isValidated(target) ? target.validator.getError(prop) : undefined

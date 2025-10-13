@@ -1,6 +1,6 @@
 import { Component } from '../component/component.js'
 import { type UpdateEvent } from '../component/componentTypes.js'
-import { getPropertyKey, type PropertyRef } from './componentBinding.js'
+import { getPropertyKey, type PropertyRef } from '../util.js'
 import { type IValidated, type ValidatorEvent, type ValidationState, type ValidatorError} from './validationTypes.js'
 
 export function isValidated (c: Component): c is Component & IValidated {

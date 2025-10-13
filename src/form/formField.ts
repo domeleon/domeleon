@@ -1,5 +1,6 @@
 import { Component } from '../component/component.js'
-import { getLabel, getPropertyKey, type PropertyRef } from './componentBinding.js'
+import { getLabel } from './componentBinding.js'
+import { type PropertyRef } from '../util.js'
 import type { VAttributes, VElement } from '../dom/dom.js'
 import { type HValues } from '../dom/html.js'
 import { div, label, fieldset, legend } from '../dom/htmlGenElements.js'
@@ -115,13 +116,13 @@ export function formField<F extends InputFn<any, any>>(
   } = props
 
   const bestLabel = labelH ?? getLabel(target, prop)
-  const prefixedId = `${getPropertyKey(prop)}-${target.ctx.componentId}`
+  const qualifiedId = target.ctx.qualify(prop)
 
   const { validationFieldAttrs, validationInputAttrs, explanation } =
-    getInputMetadata(target, prop, prefixedId, description, descriptionAttrs, showValidation, validationAttrs)
+    getInputMetadata(target, prop, qualifiedId, description, descriptionAttrs, showValidation, validationAttrs)
 
   const fieldAndValidationAttrs = { ...validationFieldAttrs, ...fieldAttrs }
-  const rawInput = inputFn({ target, prop, id: prefixedId, ...inputProps })  
+  const rawInput = inputFn({ target, prop, id: qualifiedId, ...inputProps })  
 
   if (rawInput.nodeName === 'div') {
     return div (fieldAndValidationAttrs,
@@ -147,7 +148,7 @@ export function formField<F extends InputFn<any, any>>(
   const isCheckbox = inputEl.nodeName === 'input' && inputEl.attributes?.type === 'checkbox'
   const inputOrSelect = inputEl.nodeName === 'select' ? div(selectWrapperAttrs, inputEl) : inputEl // necessary to overcome default select styling
   const children = [inputPrefix, inputOrSelect, inputSuffix]
-  const labelAttrsWithFor = { for: prefixedId, ...labelAttrs }
+  const labelAttrsWithFor = { for: qualifiedId, ...labelAttrs }
 
   const controlContent = isCheckbox 
     ? label(labelAttrsWithFor, ...children, showLabel ? bestLabel : undefined)

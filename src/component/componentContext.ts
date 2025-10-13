@@ -1,3 +1,4 @@
+import { getPropertyKey, type PropertyRef } from '../util.js'
 import { Component } from './component.js'
 import { keysOfComponent } from './componentTypes.js'
 import { type IApp, type UpdateEvent, type ComponentState } from './componentTypes.js'
@@ -165,5 +166,13 @@ export class ComponentContext {
   /** Returns the field name of the component, if the component is a field of this context's component. */
   childKey(component: Component) : string | undefined {
     return this.keys.find(k => (this.component as any)[k] === component)
+  }
+
+  /**
+   * Returns a property name qualified with the application wide unique component id,
+   * as used by `formField` to name input elements.
+   */
+  qualify(prop: PropertyRef<any>): string {
+    return `${getPropertyKey(prop)}-${this._componentId}`
   }
 }

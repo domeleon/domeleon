@@ -1,3 +1,16 @@
+export type PropertyRef<T> = string | (() => T)
+
+/**
+ * Returns the property name from a property access expression, e.g. `key(() => obj.username)` returns `"username"`.
+ * For a nested property access expression, only returns the last property (e.g. `key(() => a.b.c)` returns `"c"`).
+ */
+export function key (propertyAccess: () => any) {
+  return (""+propertyAccess).match (/\.([a-zA-Z_$][0-9a-zA-Z_$]*)[^\.]*$/)![1]
+}
+
+export const getPropertyKey = <T> (prop: PropertyRef<T>) =>
+  typeof (prop) == "string" ? prop: key (prop)
+
 export const humanizeIdentifier = (str: string) =>
   str
     .replace(/(?<=[a-z])([A-Z])/g, " $1")

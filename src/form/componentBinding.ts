@@ -1,23 +1,11 @@
 import { humanizeIdentifier } from '../util.js'
 import { Component } from '../component/component.js'
 import { type UpdateEvent } from '../component/componentTypes.js'
-
-export type PropertyRef<T> = string | (() => T)
+import { getPropertyKey, type PropertyRef } from '../util.js'
 
 export interface InputEvent extends UpdateEvent {
   cause: "input"
 }
-
-/**
- * Returns the property name from a property access expression, e.g. `key(() => obj.username)` returns `"username"`.
- * For a nested property access expression, only returns the last property (e.g. `key(() => a.b.c)` returns `"c"`).
- */
-export function key (propertyAccess: () => any) {
-  return (""+propertyAccess).match (/\.([a-zA-Z_$][0-9a-zA-Z_$]*)[^\.]*$/)![1]
-}
-
-export const getPropertyKey = <T> (prop: PropertyRef<T>) =>
-  typeof (prop) == "string" ? prop: key (prop)
 
 export const getPropertyValue = <T> (obj: Component, prop: PropertyRef<T>) =>
   (obj as any)[getPropertyKey (prop)] as T
@@ -67,4 +55,3 @@ export interface ILabel {
   description?: string
   // Add more metadata fields as needed (e.g., placeholder, tooltip, etc)
 }
-

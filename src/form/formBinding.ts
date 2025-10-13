@@ -1,4 +1,5 @@
-import { getPropertyValue, setPropertyValue, type PropertyRef } from './componentBinding.js'
+import { type PropertyRef } from '../util.js'
+import { getPropertyValue, setPropertyValue } from './componentBinding.js'
 import { Component } from '../component/component.js'
 import { fuzzyEquals, parseFloatDeNaN } from '../util.js'
 
