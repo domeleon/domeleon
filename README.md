@@ -76,11 +76,8 @@ Components update their state via their `update` method, which triggers a re-ren
 npm install domeleon
 ```
 
-## ES module CDNs:
+## ES module CDN:
 ```js
-// skypack
-import { App, Component, div, button } from 'https://cdn.skypack.dev/domeleon@latest'
-
 // esm.sh
 import { App, Component, div, button } from 'https://esm.sh/domeleon@latest'
 ```

@@ -21,6 +21,6 @@ export const RefForwardingChildWrapper: React.FC<RefForwardingChildWrapperProps>
     [refPropName]: nodeRef
   }
   return React.createElement(targetComponent, targetComponentProps,
-    React.cloneElement(children, { ref: nodeRef })
+    React.cloneElement(children, { ref: nodeRef } as React.Attributes)
   )
 } 

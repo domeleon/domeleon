@@ -15,7 +15,7 @@ export const OnMountAdapter: React.FC<OnMountAdapterProps> = ({ onMounted, react
   React.useLayoutEffect(() => {            
     return onMounted(targetRef.current!)    
   }, [])
-  return React.cloneElement(reactElement, { ref: targetRef })
+  return React.cloneElement(reactElement, { ref: targetRef } as React.Attributes)
 } 
 
 // --- HookAdapter Section --- 

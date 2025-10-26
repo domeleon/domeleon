@@ -23,7 +23,7 @@ export function inputNumber(props: InputNumberProps)
     converter: {
       format: val => val == null ? "" : "" + val,
       parse: str => {
-        const num = maskitoParseNumber(str, numberParamsForGenerator.decimalSeparator || '.')
+        const num = maskitoParseNumber(str, numberParamsForGenerator)
         return Number.isNaN(num) ? undefined : num
       }
     }

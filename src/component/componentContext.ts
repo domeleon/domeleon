@@ -170,7 +170,7 @@ export class ComponentContext {
 
   /**
    * Returns a property name qualified with the application wide unique component id,
-   * as used by `formField` to name input elements.
+   * as used by `formField` to give an id to input elements.
    */
   qualify(prop: PropertyRef<any>): string {
     return `${getPropertyKey(prop)}-${this._componentId}`
