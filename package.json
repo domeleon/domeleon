@@ -1,6 +1,6 @@
 {
   "name": "domeleon",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "type": "module",
   "description": "Build web UIs with classes encapsulating your domain model and a pluggable Preact/React/Vue VDOM.",
   "types": "./dist/index.d.ts",

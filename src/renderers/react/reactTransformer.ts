@@ -1,6 +1,7 @@
 import * as React from 'react'
 import type { VElementTransformer } from 'domeleon'
 import { OnMountAdapter, HookAdapter, ComponentAdapter } from './reactAdapters.js'
+import { svgCompoundWordAttrs } from '../domNaming.js'
 
 export const transformer = (reactLib: typeof React): VElementTransformer<React.ReactElement> => ({
   transformElement: (tag, props, children) => 
@@ -31,6 +32,7 @@ export const transformer = (reactLib: typeof React): VElementTransformer<React.R
   transformAttributeName: (name: string) =>
     name == "class" ? "className" :
     name == "for" ? "htmlFor" :
+    svgCompoundWordAttrs.has(name) ? svgCompoundWordAttrs.get(name)!.react :
     name
   }
 )

@@ -16,13 +16,24 @@ const svgCamelCaseAttrs = new Set([
   "attributeName", "baseFrequency", "calcMode", "clipPathUnits", "diffuseConstant", "edgeMode",
   "filterUnits", "gradientTransform", "gradientUnits", "kernelMatrix", "kernelUnitLength",
   "keyPoints", "keySplines", "keyTimes", "lengthAdjust", "limitingConeAngle", "markerHeight",
-  "markerUnits", "markerWidth", "maskContentUnits", "maskUnits", "methodExperimental",
+  "markerUnits", "markerWidth", "maskContentUnits", "maskUnits",
   "numOctaves", "pathLength", "patternContentUnits", "patternTransform", "patternUnits",
   "pointsAtX", "pointsAtY", "pointsAtZ", "preserveAlpha", "preserveAspectRatio",
-  "primitiveUnits", "refX", "refY", "repeatCount", "repeatDur", "rotateExperimental",
-  "sideExperimental", "specularConstant", "specularExponent", "spreadMethod", "startOffset",
+  "primitiveUnits", "refX", "refY", "repeatCount", "repeatDur",
+  "specularConstant", "specularExponent", "spreadMethod", "startOffset",
   "stdDeviation", "stitchTiles", "surfaceScale", "systemLanguage", "tableValues", "targetX",
   "targetY", "textLength", "viewBox", "xChannelSelector", "yChannelSelector"
+])
+
+// SVG attributes where kebab-case produces incorrect results (compound words in spec)
+// e.g. strokeDashArray should become "stroke-dasharray" (not "stroke-dash-array")
+// React uses strokeDasharray, Preact/Vue use stroke-dasharray
+export const svgCompoundWordAttrs = new Map<string, { kebab: string, react: string }>([
+  ["strokeDashArray", { kebab: "stroke-dasharray", react: "strokeDasharray" }],
+  ["strokeDashOffset", { kebab: "stroke-dashoffset", react: "strokeDashoffset" }],
+  ["strokeLineCap", { kebab: "stroke-linecap", react: "strokeLinecap" }],
+  ["strokeLineJoin", { kebab: "stroke-linejoin", react: "strokeLinejoin" }],
+  ["strokeMiterLimit", { kebab: "stroke-miterlimit", react: "strokeMiterlimit" }],
 ])
 
 const domeleonHtmlCamelCaseAttrs = new Set([
@@ -48,5 +59,6 @@ export const isSvgSpecAttrKebab = (name: string) =>
 
 export const nativiseAttrName = (name: string, isSVG: boolean) =>
   isDomeleonHtmlCamelAttr(name) ? name.toLowerCase() :
+  isSVG && svgCompoundWordAttrs.has(name) ? svgCompoundWordAttrs.get(name)!.kebab :
   isSVG && isSvgSpecAttrKebab(name) ? kebab(name) :
   name

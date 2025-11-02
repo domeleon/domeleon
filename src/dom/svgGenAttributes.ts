@@ -1,9 +1,15 @@
 export interface KnownSvgAttributes {
   accentHeight?: string | number
+  accumulate?: string | "none" | "sum"
+  additive?: string | "sum" | "replace"
   alignmentBaseline?: "alphabetic" | "hanging" | "ideographic" | "mathematical" | "auto" | "baseline" | "before-edge" | "text-before-edge" | "middle" | "central" | "after-edge" | "text-after-edge" | "inherit" | string
   allowReorder?: string | "no" | "yes"
   arabicForm?: string | "initial" | "medial" | "terminal" | "isolated"
+  attributeName?: string
   baselineShift?: string
+  begin?: string
+  by?: string | number
+  calcMode?: string | "discrete" | "linear" | "paced" | "spline"
   capHeight?: string | number
   clipPath?: string
   clipRule?: string | number
@@ -11,6 +17,8 @@ export interface KnownSvgAttributes {
   colorInterpolationFilters?: "auto" | "inherit" | string | "sRGB" | "linearRGB"
   colorRendering?: string | number
   dominantBaseline?: string
+  dur?: string
+  end?: string
   fillOpacity?: string | number
   fillRule?: "inherit" | string | "nonzero" | "evenodd"
   floodColor?: string
@@ -29,6 +37,8 @@ export interface KnownSvgAttributes {
   horizOriginX?: string | number
   horizOriginY?: string | number
   imageRendering?: string
+  keySplines?: string
+  keyTimes?: string
   letterSpacing?: string | number
   lightingColor?: string
   markerEnd?: string | "none"
@@ -38,13 +48,14 @@ export interface KnownSvgAttributes {
   overlineThickness?: string | number
   paintOrder?: "fill" | "stroke" | string | "normal" | "markers"
   pointerEvents?: "fill" | "stroke" | string | "none" | "bounding-box" | "visiblePainted" | "visibleFill" | "visibleStroke" | "visible" | "painted" | "all"
+  restart?: string | "always" | "whenNotActive" | "never"
   shapeRendering?: "auto" | string | "optimizeSpeed" | "crispEdges" | "geometricPrecision"
   stopColor?: string
   stopOpacity?: string | number
-  strokeDashArray?: string | number | number[]
-  strokeDashOffset?: string | number | number[]
+  strokeDashArray?: string | number
+  strokeDashOffset?: string | number
   strokeLineCap?: "inherit" | string | "butt" | "round" | "square"
-  strokeLineJoin?: "inherit" | string | "butt" | "round" | "square"
+  strokeLineJoin?: "inherit" | string |"bevel" | "miter" | "miter-clip" | "round"
   strokeMiterLimit?: string | number
   strokeOpacity?: string | number
   strokeWidth?: string | number
@@ -74,11 +85,10 @@ export interface KnownSvgAttributes {
   xlinkShow?: string
   xlinkTitle?: string
   xlinkType?: string
-  string?: string | number | boolean
   alphabetic?: string | number
   amplitude?: string | number
   ascent?: string | number
-  autoReverse?: string | number
+  
   azimuth?: string | number
   baseFrequency?: string | number
   baseProfile?: string | number
@@ -124,7 +134,7 @@ export interface KnownSvgAttributes {
   k2?: string | number
   k3?: string | number
   k4?: string | number
-  kernelMatrix?: string | number | number[] | string[]
+  kernelMatrix?: string | number
   kernelUnitLength?: string | number
   keyPoints?: string | number
   lengthAdjust?: string | number
@@ -134,10 +144,11 @@ export interface KnownSvgAttributes {
   markerUnits?: string | number
   markerWidth?: string | number
   mask?: string
-  maskContentUnits?: "strokeWidth" | string | "userSpaceOnUse"
+  maskContentUnits?: string | "userSpaceOnUse"
   maskUnits?: string | number
   mathematical?: string | number
-  mode?: string | string
+  method?: string | "align" | "stretch"
+  mode?: string
   numOctaves?: string | number
   offset?: string | number
   opacity?: string | number
@@ -150,9 +161,9 @@ export interface KnownSvgAttributes {
   path?: string
   pathLength?: string | number
   patternContentUnits?: string | "userSpaceOnUse" | "objectBoundingBox"
-  patternTransform?: "string"
+  patternTransform?: string
   patternUnits?: string | "userSpaceOnUse" | "objectBoundingBox"
-  points?: string | number | number[] | string[]
+  points?: string | number
   pointsAtX?: string | number
   pointsAtY?: string | number
   pointsAtZ?: string | number
@@ -163,8 +174,9 @@ export interface KnownSvgAttributes {
   radius?: string | number
   refX?: number | string | "left" | "center" | "right"
   refY?: number | string | "left" | "center" | "right"
+  repeatCount?: string | number
+  repeatDur?: string | number
   requiredExtensions?: string
-  requiredFeatures?: string
   result?: string
   rotate?: number | "auto" | string | "auto-reverse"
   rx?: string | number
@@ -186,7 +198,7 @@ export interface KnownSvgAttributes {
   stroke?: string
   surfaceScale?: string | number
   systemLanguage?: string
-  tableValues?: string | number[]
+  tableValues?: string | number
   targetX?: string | number
   targetY?: string | number
   textLength?: string | number
@@ -196,7 +208,6 @@ export interface KnownSvgAttributes {
   u2?: string
   unicode?: string
   values?: string | number
-  version?: string
   viewBox?: string
   viewTarget?: string | number
   visibility?: string | "visible" | "hidden" | "collapse"

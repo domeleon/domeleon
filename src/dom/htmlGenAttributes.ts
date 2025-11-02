@@ -1,8 +1,8 @@
-import type { JSX } from 'preact'
+import type { CSSProperties } from 'preact'
 
 export interface KnownHtmlAttributes {
   class?: string | string[] | undefined
-  style?: JSX.CSSProperties | undefined
+  style?: CSSProperties | undefined
   acceptCharset?: string
   autoComplete?: boolean
   autoPlay?: boolean
