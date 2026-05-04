@@ -77,6 +77,7 @@ export class UnoThemeManager<TTheme extends Theme> {
   get rootSelector() { return this._isolate ? `#${this._id}` : ':root' }
 
   set themeName(name: string) {
+    if (name === this._themeName) return
     this._themeName = name
     this._theme = this.buildProxyTheme() // rebuild as some people still want to access theme's raw values
     this.renderUnoCss()

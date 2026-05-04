@@ -31,18 +31,18 @@ export type InputMaskProps<PropType> = DataBindProps<PropType> &
 export function inputMask<PropType>(props: InputMaskProps<PropType>)
 {
   const { id, target, prop, maskitoOptions, attrs, converter } = props
+  const maskedValue = maskitoTransform(converter.format(getPropertyValue(target, prop)), maskitoOptions)
 
   return input({
     type: attrs?.type ?? 'text',
-    ...mergeAttrs({ id: id }, attrs),
+    ...mergeAttrs({ id }, attrs),
+    value: maskedValue,
     onInput: event => {
       const elm = event.target as HTMLInputElement
       setPropertyValue(target, prop, converter.parse(elm.value, getPropertyValue(target, prop)))
     },
     onMounted: elm => {
-      const inputElement = elm as HTMLInputElement
-      inputElement.value = maskitoTransform(converter.format(getPropertyValue(target, prop)), maskitoOptions)
-      const mask = new Maskito(inputElement, maskitoOptions)
+      const mask = new Maskito(elm as HTMLInputElement, maskitoOptions)
       return () => mask.destroy()
     }
   })

@@ -4,7 +4,7 @@ export interface KnownHtmlAttributes {
   class?: string | string[] | undefined
   style?: CSSProperties | undefined
   acceptCharset?: string
-  autoComplete?: boolean
+  autoComplete?: "on" | "off" | string
   autoPlay?: boolean
   bgColor?: string
   colSpan?: string | number
@@ -38,7 +38,6 @@ export interface KnownHtmlAttributes {
   alt?: string
   as?: "object" | "style" | "document" | string | "audio" | "embed" | "fetch" | "font" | "image" | "script" | "track" | "video" | "worker"
   async?: boolean
-  autoplay?: boolean
   background?: string
   border?: string
   capture?: string | "user" | "environment"
@@ -123,18 +122,29 @@ export interface KnownHtmlAttributes {
   virtualKeyboardPolicy?: string | "auto" | "manual"
   writingSuggestions?: boolean
   accesskey?: string
-  anchor?: string
   dir?: string | "auto" | "ltr" | "rtl"
   draggable?: boolean
   hidden?: boolean
   id?: string
-  insert?: boolean
   lang?: string
   nonce?: string
   part?: string
   slot?: string
   title?: string
   translate?: string | "yes" | "no"
+  inert?: boolean
+  alpha?: boolean
+  colorSpace?: string
+  elemenTtiming?: string
+  fetchPriority?: string
+  imageSizes?: string
+  imageSrcset?: string
+  is?: string,
+  popoverTarget?: string,
+  popoverTargetAction?: string,
+  credentialless?: boolean
+  browsingTopics?: boolean
+  
   onAbort?: (ev: UIEvent) => void
   onActivate?: (ev: AnimationEvent) => void
   onAnimationCancel?: (ev: AnimationEvent) => void

@@ -1,6 +1,6 @@
 {
   "name": "domeleon",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "type": "module",
   "description": "Build web UIs with classes encapsulating your domain model and a pluggable Preact/React/Vue VDOM.",
   "types": "./dist/index.d.ts",
@@ -76,8 +76,8 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "vue": "^3.5.22",
-    "@maskito/kit": "^4.0.0",
-    "@maskito/core": "^4.0.0",
+    "@maskito/kit": "^5.0.0",
+    "@maskito/core": "^5.0.0",
     "zod": "^4.1.12",
     "@unocss/core": "^66.5.4",
     "@unocss/preset-wind3": "^66.5.4"
