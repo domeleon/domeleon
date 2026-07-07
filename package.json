@@ -89,10 +89,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/user/domeleon"
+    "url": "https://github.com/domeleon/domeleon"
   },
   "bugs": {
-    "url": "https://github.com/user/domeleon/issues"
+    "url": "https://github.com/domeleon/domeleon/issues"
   },
-  "homepage": "https://github.com/user/domeleon"
+  "homepage": "https://github.com/domeleon/domeleon"
 }
