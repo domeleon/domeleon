@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'preact'
 
 export interface KnownHtmlAttributes {
-  class?: string | string[] | undefined
+  class?: string | (string | false | null | undefined)[] | undefined
   style?: CSSProperties | undefined
   acceptCharset?: string
   autoComplete?: "on" | "off" | string
