@@ -9,4 +9,4 @@ pnpm-debug.log*
 .env
 .idea/
 .vscode/
-coverage/ 
+coverage/ .npmrc
