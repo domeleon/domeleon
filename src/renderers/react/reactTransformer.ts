@@ -8,6 +8,7 @@ export const transformer = (reactLib: typeof React): VElementTransformer<React.R
     reactLib.createElement(tag as React.ElementType, props, ...children),
   transformHook: (config, tag, props, children) => 
     reactLib.createElement(HookAdapter, { 
+      key: props.key,
       tag: tag, 
       elementProps: props, 
       children: children,
@@ -15,14 +16,18 @@ export const transformer = (reactLib: typeof React): VElementTransformer<React.R
     }),
   tranformComponent: (config, tag, props, children) => 
     reactLib.createElement(ComponentAdapter, { 
+      key: props.key,
       tag: tag, 
       elementProps: props, 
       children: children,
       componentConfig: config
     }), 
+  // The wrapper must carry the element's key: an unkeyed adapter is reused across a key change,
+  // so its once-per-mount effect never refires even though the DOM element beneath was replaced.
   transformOnMounted: (frameworkElement, onMounted, originalProps) => {
     if (onMounted) {
       return reactLib.createElement(OnMountAdapter, { 
+        key: originalProps.key,
         onMounted: onMounted, 
         reactElement: frameworkElement
       })
