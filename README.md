@@ -82,6 +82,14 @@ npm install domeleon
 import { App, Component, div, button } from 'https://esm.sh/domeleon@latest'
 ```
 
+## Global App Handle
+
+Every `App` self-registers on `window.domeleon.apps`, keyed by mount `id` — a devtools-style hook (like Vue's `__vue_app__`) that gives debuggers and agents direct access to the live component tree:
+
+```js
+window.domeleon.apps.get('app').root
+```
+
 ## LLM Usage
 
 Domeleon is a concise, modular framework, making it ideal for an LLM to digest and reason about. Even the entire code base with documentation easily fits inside its context window.

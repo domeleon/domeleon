@@ -8,6 +8,7 @@ import { cssManager } from '../dom/processClass.js'
 import { RouteService } from '../router/routeService.js'
 import { debounce } from '../util.js'
 import { AppPlugins, type AppPlugin } from './appPlugin.js'
+import { registerApp } from './globalRegistry.js'
 
 /**
  * Configures your Domeleon app.
@@ -78,6 +79,7 @@ export class App implements IApp {
     this.routeService.init(this) 
     this._root.ctx.attach(this)
     this._plugins = new AppPlugins(this, props.plugins ?? [])
+    registerApp(this, this._id, this._rootElement)
     this.render()
   }
 

@@ -1,4 +1,5 @@
 export { App, type AppSetupProps } from './app/app.js'
+export type { DomeleonGlobal } from './app/globalRegistry.js'
 export { AppSerializer } from './app/appSerializer.js'
 export type { AppPlugin } from './app/appPlugin.js'
 export { Component } from './component/component.js'
