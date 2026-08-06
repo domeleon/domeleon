@@ -25,6 +25,10 @@ export class RouteService implements IRouteService {
     this._history?.sync(action)
   }
 
+  restoreHistory(): void {
+    this._history?.restore()
+  }
+
   init(app: IApp): void {
     const root = app.root
     if (!isRouted(root)) return

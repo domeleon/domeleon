@@ -19,6 +19,12 @@ const browserHistory = {
   back() {
     window.history.back()
   },
+  // Raw write, no synthetic popstate: used to restore the bar after a cancelled POP, where
+  // nothing needs re-rendering — and a dispatch would re-enter navigation (the in-flight
+  // record holds the refused route, so getInFlight would not absorb the re-entry).
+  restore(route: Route) {
+    window.history.replaceState({}, '', route.toString())
+  },
   listen(cb: (route: Route, action: Action) => void) {
     window.addEventListener('popstate', () => {
       cb(new Route(window.location.pathname + window.location.search), 'POP')
@@ -40,6 +46,15 @@ export class HistorySync {
       if (act !== 'POP') return
       this.service.navigateAbsolute(route, 'POP')
     })
+  }
+
+  // A cancelled POP leaves the popped entry's URL in the bar while the app still renders
+  // currentRoute. Restoring by replace overwrites the refused entry with a duplicate of the
+  // current route; duplicates are benign.
+  restore(): void {
+    const fullRoute = this.service.basePath.concat(this.service.currentRoute)
+    if (!fullRoute.equals(browserHistory.location))
+      browserHistory.restore(fullRoute)
   }
 
   sync(action: Action): void {

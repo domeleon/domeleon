@@ -23,6 +23,7 @@ export interface IRouteService {
   currentRoute: Route
   root: Router  
   syncHistory(action: Action): void
+  restoreHistory(): void
   navigateAbsolute(absolute: Route, action: Action): Promise<boolean>
 }
 

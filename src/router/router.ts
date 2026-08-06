@@ -40,7 +40,12 @@ export class Router {
 
     const job = (async (): Promise<boolean> => {
       const result = await matchRoute (this.root, target, action, isStale)
-      if (result.cancel) return false
+      if (result.cancel) {
+        // On a refused POP the browser already moved, so the bar shows the refused URL.
+        // Skip when stale: a superseding navigation owns the bar and will write it itself.
+        if (action === "POP" && !isStale()) this.root.routeService?.restoreHistory()
+        return false
+      }
 
       for (const { router, segment } of result.updates) {
         router._activeSegment = segment

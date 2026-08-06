@@ -960,6 +960,8 @@ The `Route` object provides a safe, structured view of a route. Access its `segm
 
 Return `false` to cancel/gaurd a navigation; otherwise you don't need to return anything.
 
+If the cancelled navigation came from the browser's Back/Forward button, domeleon restores the address bar to the current route (the browser has already moved it by the time your guard runs).
+
 ### Preparing Child Routes
 
 A common pattern is to fetch data on `onNavigate`, so that a child can be navigated to. Domeleon strictly requires an *exact match* based on the `routeSegment`, so dynamic routes require this pattern. Think of it as Just-In-Time routing.
