@@ -911,6 +911,10 @@ Use the router's `navigate` method with *relative* paths. The below assumes `thi
 | `this.router.root.navigate('help/banana')` | `/` | `/help/banana` |
 | `this.router.parent.navigate('examples')` | `/help` | `/examples` |
 
+`navigate` takes an optional second argument `action` (`'PUSH' | 'REPLACE'`, default `'PUSH'`). Use `'REPLACE'` to change the URL without adding a history entry — right for modal-like routes (e.g. a fullscreen toggle) where Back should leave the page, not replay the toggle.
+
+Routes are path + query only: `location.hash` is never carried across navigations. This matches React Router and Vue Router; treat fragments as page-scoped state you set yourself after navigating.
+
 ### Root router
 
 Each router on your component tree also forms its own router tree. The root of that tree must define a *transparent route* (explained further below), meaning it has an empty `routeSegment`:

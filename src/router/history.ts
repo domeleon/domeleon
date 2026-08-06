@@ -3,6 +3,10 @@ import type { IRouteService } from "./routerTypes.js"
 
 export type Action = 'PUSH' | 'REPLACE' | 'POP'
 
+// push/replace dispatch a synthetic popstate after writing history, which re-enters
+// navigateAbsolute(..., 'POP') via the ensureListener callback *during* the navigation that
+// triggered it. Router.navigate's in-flight dedup (getInFlight) absorbs the re-entry — the
+// re-entrant call returns the running job's promise — so onNavigated fires exactly once.
 const browserHistory = {
   push(route: Route) {
     window.history.pushState({}, '', route.toString())
@@ -42,7 +46,7 @@ export class HistorySync {
     if (action === 'POP') return
     const fullRoute = this.service.basePath.concat(this.service.currentRoute)
 
-    if (fullRoute.equals(browserHistory.location)) {
+    if (action === 'REPLACE' || fullRoute.equals(browserHistory.location)) {
       browserHistory.replace(fullRoute)
     } else {
       browserHistory.push(fullRoute)

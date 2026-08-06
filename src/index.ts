@@ -7,6 +7,7 @@ export { componentSkipProps, type UpdateEvent, type UpdateCause, type IApp, type
 export { type ComponentContext } from './component/componentContext.js'
 export { Renderer, type FrameworkAttrs, type VElementTransformer } from './renderers/renderer.js'
 export { Router } from './router/router.js'
+export { type Action } from './router/history.js'
 export { type IRouted, isRouted, type RouterEvent } from './router/routerTypes.js'
 export { Route } from './router/route.js'
 export { RouteService } from './router/routeService.js'
